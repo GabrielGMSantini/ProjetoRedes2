@@ -1,0 +1,38 @@
+.addContainer {
+    background-color: #ddd;
+    position: absolute;
+    left: 75%;
+    right: 5%;
+    top: 73.5%;
+    bottom: 13%;
+  }
+  
+  .addContainer:hover {
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .addContainer h2 {
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+  @media only screen and (min-width: 1020px) {
+    .addContainer h2 {
+      font-size: 22px;
+    }
+  }
+  
+  @media only screen and (min-width: 800px) and (max-width: 1020px) {
+    .addContainer h2 {
+      font-size: 18px;
+    }
+  }
+  
+  @media only screen and (min-width: 600px) and (max-width: 800px) {
+    .addContainer h2 {
+      font-size: 16px;
+    }
+  }
