@@ -1,3 +1,13 @@
+.pPer {
+  padding-right: 10px;
+  padding-left: 2px;
+}
+
+.pMarca {
+  padding-right: 55px;
+  padding-left: 2px;
+}
+
 .addContainer {
     background-color: #ddd;
     position: absolute;
@@ -5,6 +15,7 @@
     right: 5%;
     top: 73.5%;
     bottom: 13%;
+    text-align: center;
   }
   
   .addContainer:hover {
@@ -13,26 +24,36 @@
     cursor: pointer;
   }
   
-  .addContainer h2 {
-    text-align: center;
+  .addContainer a {
+    position: fixed;
+    left: 75%;
+    right: 5%;
+    top: 73.5%;
+    bottom: 13%;
+    padding-top: 20px;
+    color: black;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 12px;
+  }
+
+  .addContainer a:hover {
+    color: white;
   }
   
   @media only screen and (min-width: 1020px) {
-    .addContainer h2 {
-      font-size: 22px;
+    .addContainer a {
+      font-size: 20px;
     }
   }
   
   @media only screen and (min-width: 800px) and (max-width: 1020px) {
-    .addContainer h2 {
-      font-size: 18px;
+    .addContainer a {
+      font-size: 16px;
     }
   }
   
   @media only screen and (min-width: 600px) and (max-width: 800px) {
-    .addContainer h2 {
-      font-size: 16px;
+    .addContainer a {
+      font-size: 14px;
     }
   }

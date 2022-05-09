@@ -22,19 +22,23 @@
         <div class="header">
             <h1>Prateleiras</h1>
             <div class="pageContainer">
-                <a href="venda.html"><i class="fa-solid fa-cart-shopping"></i>Venda</a>
+                <a href="gondola.html"><i class="fa-solid fa-cart-shopping"></i>Gôndola</a>
                 <a class="active" href="prateleiras.html"><i class="fa-solid fa-bars-progress"></i></i>Prateleiras</a>
+                <a href="https://github.com/GabrielGMSantini/ProjetoRedes2/tree/frontend/Site" target="_blank"><i class="fa-brands fa-github"></i>Source</a>
             </div>
         </div>
-        <div class="mainContainerHeader">
-            <div class="pContainerHeader">
-                <p class="pCod">Código/Barras</p>
-                <p class="pQtde">Qtde</h1>
-                <p class="pPreco">Preço</p>
-                <p class="pNome">Nome</p>
+
+        <div class="mainContainer">
+            
+            <div class="mainContainerHeader">
+                <div class="pContainerHeader">
+                    <p class="pCod">Código/Barras</p>
+                    <p class="pQtde">Qtde</h1>
+                    <p class="pPreco">Preço</p>
+                    <p class="pNome">Nome</p>
+                </div>
             </div>
-        </div>
-        <div class="vendaMainContainer">
+            
             <div class="mainProductContainer">
                 <div>
                     <p>#19238397</p>
@@ -70,8 +74,75 @@
                 </div>
             </div>
         </div>
-        <div class="addContainer">
-            <h2>Adicionar do Estoque</h2>
+
+        <div class="addContainer" id="triggerBtn">
+            <a href="#openModal">Adicionar ao Carrinho</a>
         </div>
+
+        <!--Modal para passagem de produtos da prateleira para o carrinho-->
+        <div id="openModal" class="modal">
+            <div class="modalContainer">
+
+                <!--Container com o Nome do Container acessado-->
+                <div class="modalNameContainer">
+                    <p>Estoque</p>
+                </div>
+
+                <!--Botão para fechar o Modal-->
+                <a href="#closeModal" class="closeModal">X</a>
+
+                <!--Container principal com os produtos-->
+                <div class="mainContainer">
+
+
+                    <!--Header do Container principal-->
+                    <div class="mainContainerHeader">
+                        <div class="pContainerHeader">
+                            <p class="pCod">Código/Barras</p>
+                            <p class="pQtde">Qtde</h1>
+                            <p class="pPreco">Preço</p>
+                            <p class="pNome">Nome</p>
+                        </div>
+                    </div>
+
+                    <!--Container onde os produtos são mostrados-->
+                    <div class="mainProductContainer">
+                        <div>
+                            <p>#19238397</p>
+                            <p>#44112948</p>
+                            <p>#91002841</p>
+                            <p>#23875312</p>
+                            <p>#61129384</p>
+                            <p>#01213942</p>
+                        </div>
+                        <div>
+                            <p>12</p>
+                            <p>2</p>
+                            <p>4</p>
+                            <p>61</p>
+                            <p>23</p>
+                            <p>100</p>
+                        </div>
+                        <div class="productPreco">
+                            <p>23,00</p>
+                            <p>181,35</p>
+                            <p>1,78</p>
+                            <p>0,80</p>
+                            <p>15,25</p>
+                            <p>0,20</p>
+                        </div>
+                        <div>
+                            <p>Produto 1</p>
+                            <p>Produto 2</p>
+                            <p>Produto 3</p>
+                            <p>Produto 4</p>
+                            <p>Produto 5</p>
+                            <p>Produto 6</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </body>
 </html>
