@@ -4,6 +4,8 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 
 const rotaProdutos = require("./routes/produtos");
+const rotaEstoques = require("./routes/estoques");
+const rotaPrateleiras = require("./routes/prateleiras");
 
 // Uso do Morgan para monitoramento de requisições
 app.use(morgan("dev"));
@@ -25,8 +27,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Chamada das rotas dos Produtos na aplicação
+// Chamada das rotas da aplicação
 app.use("/produtos", rotaProdutos);
+app.use("/estoques", rotaEstoques);
+app.use("/prateleiras", rotaPrateleiras);
 
 // Tratamento de erro ao não encontrar uma Rota válida
 app.use((req, res, next) => {
