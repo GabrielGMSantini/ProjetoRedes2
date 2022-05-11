@@ -3,6 +3,9 @@ const app = express();
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 
+const cors = require("cors");
+app.use(cors());
+
 const rotaProdutos = require("./routes/produtos");
 const rotaEstoques = require("./routes/estoques");
 const rotaPrateleiras = require("./routes/prateleiras");
