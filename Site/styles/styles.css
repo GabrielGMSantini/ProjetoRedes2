@@ -60,41 +60,13 @@ body {
   flex-direction: row;
 }
 
-.mainContainerHeader p {
-  margin-top: 0.4%;
-  text-decoration: none;
-  font-size: 14px;
-  border: 1px solid #ccc; 
-}
-
-.pCod {
-  margin-left: 6px;
-  padding-left: 4px;
-  padding-right: 12px;
-}
-
-.pQtde {
-  padding-right: 23px;
-  padding-left: 4px;
-}
-
-.pPreco {
-  padding-right: 38px;
-  padding-left: 4px;
-}
-
-.pNome {
-  padding-right: 200px;
-  padding-left: 4px;
-}
-
 .mainContainer {
   background-color: white;
   position: fixed;
   left: 3%;
   right: 5%;
-  top: 22%;
-  bottom: 28%;
+  top: 18%;
+  bottom: 22%;
   display: flex;
   flex-direction: row;
   overflow: auto; 
@@ -104,18 +76,28 @@ body {
   margin-left: 0.5%;
   display: flex;
   flex-direction: row;
+  text-align: center;
+}
+
+.mainProductContainer h2 {
+  margin-top: 0.4%;
+  font-size: 12px;
+  border: 1px solid #ccc; 
 }
 
 .mainProductContainer p {
   background-color: rgb(236, 236, 236);
+  margin-left: 12px;
   padding: 20px 10px;
   margin-right: 20px;
-  text-decoration: none;
   font-size: 14px;
 }
 
-.productPreco p {
-  color: red;
+.mainElement {
+  padding-left: 6px;
+  padding-right: 6px;
+  margin-left: 2px;
+  margin-right: 2px;
 }
 
 .modal {

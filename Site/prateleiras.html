@@ -33,55 +33,31 @@
         <!--Container principal com os produtos-->
         <div class="mainContainer">
             
-            <!--Header do Container principal-->
-            <div class="mainContainerHeader">
-                <div class="pContainerHeader">
-                    <p class="pCod">Código/Barras</p>
-                    <p class="pQtde">Qtde</h1>
-                    <p class="pPreco">Preço</p>
-                    <p class="pNome">Nome</p>
-                </div>
-            </div>
-            
-            <!--Container onde os produtos são mostrados-->
+            <!--Container onde as prateleiras são mostrados-->
             <div class="mainProductContainer">
-                <div>
-                    <p>#19238397</p>
-                    <p>#44112948</p>
-                    <p>#91002841</p>
-                    <p>#23875312</p>
-                    <p>#61129384</p>
-                    <p>#01213942</p>
+                <div id="prateleiraID">
+                    <h2 class="mainElement">ID da Prateleira</h2>
                 </div>
-                <div>
-                    <p>80</p>
-                    <p>6</p>
-                    <p>12</p>
-                    <p>200</p>
-                    <p>92</p>
-                    <p>3000</p>
+                <div id="prateleiraQntTotal">
+                    <h2 class="mainElement">Quantidade Total</h2>
+                </div>    
+                <div id="prateleiraQntMax">
+                    <h2 class="mainElement">Quantidade Máxima</h2>
                 </div>
-                <div class="productPreco">
-                    <p>23,00</p>
-                    <p>181,35</p>
-                    <p>1,78</p>
-                    <p>0,80</p>
-                    <p>15,25</p>
-                    <p>0,20</p>
+                <div id="prateleiraProductNome">
+                    <h2 class="mainElement">Nome do Produto</h2>
                 </div>
-                <div>
-                    <p>Produto 1</p>
-                    <p>Produto 2</p>
-                    <p>Produto 3</p>
-                    <p>Produto 4</p>
-                    <p>Produto 5</p>
-                    <p>Produto 6</p>
+                <div id="prateleiraProductID">
+                    <h2 class="mainElement">ID do Produto</h2>
+                </div>
+                <div id="prateleiraProductPreco">
+                    <h2 class="mainElement">Preço do Produto</h2>
                 </div>
             </div>
         </div>
 
         <!--Container com botão para abrir o Modal-->
-        <div class="addContainer" id="triggerBtn" onClick="mostraEstoques()">
+        <div class="addContainer" onClick="mostraEstoques()">
             <a href="#openModal">Adicionar ao Carrinho</a>
         </div>
 
@@ -95,39 +71,33 @@
                 </div>
 
                 <!--Botão para fechar o Modal-->
-                <a href="#closeModal" class="closeModal">X</a>
+                <a href="#closeModal" class="closeModal" onClick="fechaEstoques()">X</a>
 
                 <!--Container principal com os produtos-->
-                <div class="mainContainer">
-
-
-                    <!--Header do Container principal-->
-                    <div class="mainContainerHeader">
-                        <div class="pContainerHeader">
-                            <p class="pCod">ID do Estoque</p>
-                            <p class="pQtde">Quantidade Total</h1>
-                            <p class="pPreco">Quantidade Mínima</p>
-                            <p class="pNome">ID do Produto</p>
-                        </div>
-                    </div>
+                <div class="modalMainContainer">
 
                     <!--Container onde os produtos são mostrados-->
-                    <div class="mainProductContainer">
+                    <div class="modalProductContainer">
                         <div id="estoqueID">
-                            <p>#19238397</p>
-                            
+                            <h2 class="modalElement">ID do Estoque</h2>
                         </div>
                         <div id="estoqueQntTotal">
-                            <p>12</p>
-                            
-                        </div>
+                            <h2 class="modalElement">Quantidade Total</h2>
+                        </div>    
                         <div id="estoqueQntMin">
-                            <p>10</p>
-                            
+                            <h2 class="modalElement">Quantidade Mínima</h2>
+                        </div>
+                        <div id="productNome">
+                            <h2 class="modalElement">Nome do Produto</h2>
                         </div>
                         <div id="productID">
-                            <p>Produto 1</p>
-                            
+                            <h2 class="modalElement">ID do Produto</h2>
+                        </div>
+                        <div id="addButton">
+                            <h2 class="modalButton">Adicionar para Prateleira</h2>
+                        </div>
+                        <div id="pratAddContainer">
+            
                         </div>
                     </div>
                 </div>

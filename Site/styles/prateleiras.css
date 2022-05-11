@@ -1,11 +1,13 @@
-.pPer {
-  padding-right: 10px;
-  padding-left: 2px;
-}
-
-.pMarca {
-  padding-right: 55px;
-  padding-left: 2px;
+.modalMainContainer {
+  background-color: white;
+  position: fixed;
+  left: 3%;
+  right: 5%;
+  top: 18%;
+  bottom: 10%;
+  display: flex;
+  flex-direction: row;
+  overflow: auto; 
 }
 
 .addContainer {
@@ -13,8 +15,8 @@
     position: absolute;
     left: 75%;
     right: 5%;
-    top: 73.5%;
-    bottom: 13%;
+    top: 79.5%;
+    bottom: 7%;
     text-align: center;
   }
   
@@ -28,8 +30,8 @@
     position: fixed;
     left: 75%;
     right: 5%;
-    top: 73.5%;
-    bottom: 13%;
+    top: 80.5%;
+    bottom: 7%;
     padding-top: 20px;
     color: black;
     text-decoration: none;
@@ -56,4 +58,74 @@
     .addContainer a {
       font-size: 14px;
     }
+  }
+
+  .modalProductContainer {
+    margin-left: 0.5%;
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+  }
+
+  .modalProductContainer h2 {
+    margin-top: 0.4%;
+    font-size: 12px;
+    border: 1px solid #ccc; 
+  }
+  
+  .modalProductContainer p {
+    background-color: rgb(236, 236, 236);
+    margin-left: 12px;
+    padding: 20px 10px;
+    margin-right: 20px;
+    font-size: 14px;
+  }
+
+  .modalElement {
+    padding-left: 6px;
+    padding-right: 6px;
+    margin-left: 2px;
+    margin-right: 2px;
+  }
+
+  .modalButton {
+    padding-left: 6px;
+    padding-right: 6px;
+    margin-left: 6px;
+    margin-right: 1px;
+  }
+
+  .modalAddButton {
+    background-color: rgb(236, 236, 236);
+    margin-left: 12px;
+    padding: 18px 10px;
+    margin-right: 20px;
+    font-size: 16px;
+  }
+
+  .modalAddButton:hover {
+    background-color: #333;
+    color: red;
+    cursor: pointer;
+  }
+
+  .pratContainer {
+    background-color: #0452aa;
+    color: white;
+    margin-top: 32px;
+    width: 200px;
+    height: 200px;
+    margin-left: 50px;
+    padding: 20px 10px;
+    margin-right: 20px;
+    font-size: 14px;
+  }
+
+  .pratContainer form {
+    padding-top: 20px;
+  }
+
+  .pratContainer input {
+    margin-top: 8px;
+    margin-bottom: 20px;
   }
