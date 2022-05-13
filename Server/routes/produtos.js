@@ -45,6 +45,47 @@ router.get("/", async (req, res, next) => {
   );
 });
 
+// Rota para Acessar as informações de um produto cadastrado
+router.get("/lote", async (req, res, next) => {
+  const sentData = req.body.lote;
+  var recData;
+
+  const connection = await amqplib.connect("amqp://localhost");
+
+  const channel = await connection.createChannel();
+  const q = await channel.assertQueue("", { exclusive: true });
+
+  console.log("[X] Requesting GET/ in /produtos/lote" + "\n");
+  console.log("[X] Sending in queue getProdutosLote");
+  console.log("[X] Data: ");
+  console.log(sentData);
+
+  channel.sendToQueue("getProdutosLote", Buffer.from(sentData.toString()), {
+    replyTo: q.queue,
+    correlationId: uuid,
+  });
+
+  channel.consume(
+    q.queue,
+    (data) => {
+      recData = JSON.parse(data.content);
+      console.log("[.] Data Received in /produtos/lote:");
+      console.info(recData);
+      if (data.properties.correlationId == uuid) {
+      }
+      return res.send({
+        request: {
+          tipo: "GET",
+          descricao: "Retorna um Produto por Lote",
+          url: "http://localhost:3000/produtos/lote",
+        },
+        produto: recData,
+      });
+    },
+    { noAck: true }
+  );
+});
+
 // Rota para cadastrar um novo produto
 router.post("/", async (req, res, next) => {
   var recData;

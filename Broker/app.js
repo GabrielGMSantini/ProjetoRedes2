@@ -78,6 +78,47 @@ const getProdutos = async () => {
   );
 };
 
+// Requisição GET para /produtos/lote
+const getProdutosLote = async () => {
+  const queueName = "getProdutosLote";
+  const connection = await amqplib.connect("amqp://localhost");
+  const channel = await connection.createChannel();
+  await channel.assertQueue(queueName, { durable: true });
+  channel.prefetch(1);
+
+  channel.consume(
+    queueName,
+    (data) => {
+      console.log("[.] Request Received: GET in /produtos/lote");
+      recData = data.content.toString();
+      console.log("[.] Data Received: ");
+      console.info(recData);
+      db.getConnection((err, conn) => {
+        conn.query(
+          "SELECT * FROM produtos WHERE Lote = ?",
+          [recData],
+          (err, result, field) => {
+            conn.release();
+            console.log("[X] Replying in queue " + queueName);
+            console.log("[X] Data: ");
+            console.info(result);
+            channel.sendToQueue(
+              data.properties.replyTo,
+              Buffer.from(JSON.stringify(result)),
+              {
+                correlationId: data.properties.correlationId,
+              }
+            );
+          }
+        );
+      });
+
+      channel.ack(data);
+    },
+    { noAck: false }
+  );
+};
+
 // Requisição GET para /estoques
 const getEstoques = async () => {
   const queueName = "getEstoques";
@@ -104,6 +145,47 @@ const getEstoques = async () => {
             }
           );
         });
+      });
+
+      channel.ack(data);
+    },
+    { noAck: false }
+  );
+};
+
+// Requisição GET para /produtos/lote
+const getEstoquesIdProduto = async () => {
+  const queueName = "getEstoquesIdProduto";
+  const connection = await amqplib.connect("amqp://localhost");
+  const channel = await connection.createChannel();
+  await channel.assertQueue(queueName, { durable: true });
+  channel.prefetch(1);
+
+  channel.consume(
+    queueName,
+    (data) => {
+      console.log("[.] Request Received: GET in /estoques/id_produto");
+      recData = data.content.toString();
+      console.log("[.] Data Received: ");
+      console.info(recData);
+      db.getConnection((err, conn) => {
+        conn.query(
+          "SELECT * FROM estoques WHERE fk_Produtos_ID_PRODUTO = ?",
+          [recData],
+          (err, result, field) => {
+            conn.release();
+            console.log("[X] Replying in queue " + queueName);
+            console.log("[X] Data: ");
+            console.info(result);
+            channel.sendToQueue(
+              data.properties.replyTo,
+              Buffer.from(JSON.stringify(result)),
+              {
+                correlationId: data.properties.correlationId,
+              }
+            );
+          }
+        );
       });
 
       channel.ack(data);
@@ -231,6 +313,49 @@ const postProdutos = async () => {
 };
 
 // Requisição POST para /gondolas
+const postEstoques = async () => {
+  const queueName = "postEstoques";
+  const connection = await amqplib.connect("amqp://localhost");
+  const channel = await connection.createChannel();
+  await channel.assertQueue(queueName, { durable: true });
+  channel.prefetch(1);
+
+  channel.consume(
+    queueName,
+    (data) => {
+      console.log("[.] Request Received: POST in /estoques");
+      recData = JSON.parse(data.content);
+      console.log("[.] Data Received: ");
+      console.info(recData);
+      sentData = "Request of POST in /estoques: Successful";
+      db.getConnection((err, conn) => {
+        conn.query(
+          `INSERT INTO estoques (QntTotal, QntMin, fk_Produtos_ID_PRODUTO)
+          VALUES (?,?,?)`,
+          [recData.qntTotal, recData.qntMin, recData.id_produto],
+          (err, result, field) => {
+            conn.release();
+            console.log("[X] Replying in queue " + queueName);
+            console.log("[X] Data: ");
+            console.log(sentData);
+            channel.sendToQueue(
+              data.properties.replyTo,
+              Buffer.from(sentData.toString()),
+              {
+                correlationId: data.properties.correlationId,
+              }
+            );
+          }
+        );
+      });
+
+      channel.ack(data);
+    },
+    { noAck: false }
+  );
+};
+
+// Requisição POST para /gondolas
 const postGondolas = async () => {
   const queueName = "postGondolas";
   const connection = await amqplib.connect("amqp://localhost");
@@ -298,8 +423,8 @@ const patchEstoques = async () => {
         conn.query(
           `UPDATE estoques
             SET QntTotal         = ?
-          WHERE fk_Produtos_Lote = ?`,
-          [recData.qntTotal, recData.lote],
+          WHERE fk_Produtos_ID_PRODUTO = ?`,
+          [recData.qntTotal, recData.id_produto],
           (err, result, field) => {
             conn.release();
             console.log("[X] Replying in queue " + queueName);
@@ -419,10 +544,13 @@ const patchGondolas = async () => {
 };
 
 getProdutos();
+getProdutosLote();
 getEstoques();
+getEstoquesIdProduto();
 getPrateleiras();
 getGondolas();
 postProdutos();
+postEstoques();
 postGondolas();
 patchEstoques();
 patchPrateleiras();
