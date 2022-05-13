@@ -2,14 +2,12 @@ const express = require("express");
 const app = express();
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
+const db = require("./db").pool;
+
+const amqplib = require("amqplib");
 
 const cors = require("cors");
 app.use(cors());
-
-// Rotas usadas na aplicação
-const rotaProdutos = require("./routes/produtos");
-const rotaEstoques = require("./routes/estoques");
-const rotaPrateleiras = require("./routes/prateleiras");
 
 // Uso do Morgan para monitoramento de requisições
 app.use(morgan("dev"));
@@ -31,11 +29,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Chamada das rotas da aplicação
-app.use("/produtos", rotaProdutos);
-app.use("/estoques", rotaEstoques);
-app.use("/prateleiras", rotaPrateleiras);
-
 // Tratamento de erro ao não encontrar uma Rota válida
 app.use((req, res, next) => {
   const erro = new Error("Rota não encontrada.");
@@ -50,5 +43,40 @@ app.use((error, req, res, next) => {
     },
   });
 });
+
+// Requisição GET para /produtos
+const getProdutos = async () => {
+  const queueName = "produtos";
+  const connection = await amqplib.connect("amqp://localhost");
+
+  const channel = await connection.createChannel();
+  await channel.assertQueue(queueName, { durable: true });
+  channel.prefetch(1);
+
+  channel.consume(
+    queueName,
+    (data) => {
+      var estoques;
+
+      db.getConnection((err, conn) => {
+        conn.query("SELECT * FROM estoques", (err, result, field) => {
+          conn.release();
+          channel.sendToQueue(
+            data.properties.replyTo,
+            Buffer.from(JSON.stringify(result)),
+            {
+              correlationId: data.properties.correlationId,
+            }
+          );
+        });
+      });
+
+      channel.ack(data);
+    },
+    { noAck: false }
+  );
+};
+
+getProdutos();
 
 module.exports = app;

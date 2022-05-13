@@ -1,61 +1,45 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db").pool;
 
-// Rota para Acessar as informações de todas os produtos cadastrados
-router.get("/", (req, res, next) => {
-  db.getConnection((err, conn) => {
-    if (err) {
-      return res.status(500).send({ erro: err });
-    }
-    conn.query("SELECT * FROM produtos", (err, result, field) => {
-      conn.release();
-      if (err) {
-        return res.status(500).send({ erro: err });
+const amqplib = require("amqplib");
+const { v4: uuidvv4 } = require("uuid");
+
+const uuid = uuidvv4();
+
+router.get("/", async (req, res, next) => {
+  const request = "get";
+  var recData;
+
+  const connection = await amqplib.connect("amqp://localhost");
+
+  const channel = await connection.createChannel();
+  const q = await channel.assertQueue("", { exclusive: true });
+
+  console.log("[X] Requesting GET in /produtos");
+
+  channel.sendToQueue("produtos", Buffer.from(request.toString()), {
+    replyTo: q.queue,
+    correlationId: uuid,
+  });
+
+  channel.consume(
+    q.queue,
+    (data) => {
+      recData = JSON.parse(data.content);
+      if (data.properties.correlationId == uuid) {
       }
-      return res.status(200).send({
+      return res.send({
         request: {
           tipo: "GET",
           descricao: "Retorna todas os Produtos",
           url: "http://localhost:3000/produtos",
         },
-        quantidade: result.length,
-        produtos: result,
+        quantidade: recData.length,
+        produtos: recData,
       });
-    });
-  });
-});
-
-// Rota para acessar as informações de um produto específico
-router.get("/:codbarras", (req, res, next) => {
-  db.getConnection((err, conn) => {
-    if (err) {
-      return res.status(500).send({ erro: err });
-    }
-    conn.query(
-      "SELECT * FROM produtos WHERE ID_PRODUTO = ?",
-      [req.params.codbarras],
-      (err, result, field) => {
-        conn.release();
-        if (err) {
-          return res.status(500).send({ erro: err });
-        }
-        if (result.length == 0) {
-          return res.status(404).send({
-            erro: "Não foi encontrado nenhuma produto com esse código de barras",
-          });
-        }
-        return res.status(200).send({
-          request: {
-            tipo: "GET",
-            descricao: "Retorna um Produto",
-            url: "http://localhost:3000/produtos",
-          },
-          produtos: result,
-        });
-      }
-    );
-  });
+    },
+    { noAck: true }
+  );
 });
 
 module.exports = router;

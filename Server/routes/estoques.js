@@ -14,12 +14,12 @@ router.get("/", (req, res, next) => {
         return res.status(500).send({ erro: err });
       }
       return res.status(200).send({
-		request: {
+        request: {
           tipo: "GET",
           descricao: "Retorna todos os estoques",
           url: "http://localhost:3000/estoques",
         },
-		quantidade: result.length,
+        quantidade: result.length,
         estoques: result,
       });
     });
