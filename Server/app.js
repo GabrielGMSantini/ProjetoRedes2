@@ -10,6 +10,7 @@ app.use(cors());
 const rotaProdutos = require("./routes/produtos");
 const rotaEstoques = require("./routes/estoques");
 const rotaPrateleiras = require("./routes/prateleiras");
+const rotaGondolas = require("./routes/gondolas");
 
 // Uso do Morgan para monitoramento de requisições
 app.use(morgan("dev"));
@@ -35,6 +36,7 @@ app.use((req, res, next) => {
 app.use("/produtos", rotaProdutos);
 app.use("/estoques", rotaEstoques);
 app.use("/prateleiras", rotaPrateleiras);
+app.use("/gondolas", rotaGondolas);
 
 // Tratamento de erro ao não encontrar uma Rota válida
 app.use((req, res, next) => {

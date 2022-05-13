@@ -1,58 +1,87 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db").pool;
+
+const amqplib = require("amqplib");
+const { v4: uuidvv4 } = require("uuid");
+
+const uuid = uuidvv4();
 
 // Rota para Acessar as informações de todas os estoques cadastrados
-router.get("/", (req, res, next) => {
-  db.getConnection((err, conn) => {
-    if (err) {
-      return res.status(500).send({ erro: err });
-    }
-    conn.query("SELECT * FROM estoques", (err, result, field) => {
-      conn.release();
-      if (err) {
-        return res.status(500).send({ erro: err });
+router.get("/", async (req, res, next) => {
+  const request = "GET";
+  var recData;
+
+  const connection = await amqplib.connect("amqp://localhost");
+
+  const channel = await connection.createChannel();
+  const q = await channel.assertQueue("", { exclusive: true });
+
+  console.log("[X] Requesting GET in /estoques");
+
+  channel.sendToQueue("getEstoques", Buffer.from(request.toString()), {
+    replyTo: q.queue,
+    correlationId: uuid,
+  });
+
+  channel.consume(
+    q.queue,
+    (data) => {
+      recData = JSON.parse(data.content);
+      if (data.properties.correlationId == uuid) {
       }
-      return res.status(200).send({
+      return res.send({
         request: {
           tipo: "GET",
-          descricao: "Retorna todos os estoques",
+          descricao: "Retorna todas os Estoques",
           url: "http://localhost:3000/estoques",
         },
-        quantidade: result.length,
-        estoques: result,
+        quantidade: recData.length,
+        estoques: recData,
       });
-    });
-  });
+    },
+    { noAck: true }
+  );
 });
 
-// Rota para atualizar um estoque
-router.patch("/", (req, res, next) => {
-  db.getConnection((err, conn) => {
-    if (err) {
-      return res.status(500).send({ erro: err });
-    }
-    conn.query(
-      `UPDATE estoques
-        SET QntTotal              = ?
-      WHERE fk_Produtos_ID_PRODUTO = ?`,
-      [req.body.qntTotal, req.body.codbarras],
-      (err, result, field) => {
-        conn.release();
-        if (err) {
-          return res.status(500).send({ erro: err });
-        }
-        return res.status(202).send({
-          mensagem: "Quantidade no estoque do produto atualizado com sucesso",
-          request: {
-            tipo: "PATCH",
-            descricao: "Atualiza a quantidade de um produto no estoque",
-            url: "http://localhost:3000/estoques",
-          },
-        });
-      }
-    );
+// Rota para Atualizar informações de um estoque
+router.patch("/", async (req, res, next) => {
+  var recData;
+  var sentData = req.body;
+
+  const connection = await amqplib.connect("amqp://localhost");
+
+  const channel = await connection.createChannel();
+  const q = await channel.assertQueue("", { exclusive: true });
+
+  console.log("[X] Requesting POST in /estoques" + "\n");
+  console.log("[X] Sending in queue patchEstoques");
+  console.log("[X] Data: ");
+  console.info(sentData);
+
+  channel.sendToQueue("patchEstoques", Buffer.from(JSON.stringify(sentData)), {
+    replyTo: q.queue,
+    correlationId: uuid,
   });
+
+  channel.consume(
+    q.queue,
+    (data) => {
+      recData = data.content.toString();
+      console.log("[.] Data Received in /estoques:");
+      console.log(recData);
+      if (data.properties.correlationId == uuid) {
+      }
+      return res.send({
+        request: {
+          tipo: "PATCH",
+          descricao: "Atualiza um Estoque",
+          url: "http://localhost:3000/estoques",
+        },
+        response: recData,
+      });
+    },
+    { noAck: true }
+  );
 });
 
 module.exports = router;
