@@ -46,8 +46,8 @@ router.get("/", async (req, res, next) => {
 });
 
 // Rota para Acessar as informações de um produto cadastrado
-router.get("/id_produto", async (req, res, next) => {
-  const sentData = req.body.id_produto;
+router.get("/:id_produto", async (req, res, next) => {
+  const sentData = req.params.id_produto;
   var recData;
 
   const connection = await amqplib.connect("amqp://localhost");
@@ -55,7 +55,7 @@ router.get("/id_produto", async (req, res, next) => {
   const channel = await connection.createChannel();
   const q = await channel.assertQueue("", { exclusive: true });
 
-  console.log("[X] Requesting GET/ in /produtos/id_produto" + "\n");
+  console.log("[X] Requesting GET/ in /produtos/:id_produto" + "\n");
   console.log("[X] Sending in queue getProdutosID");
   console.log("[X] Data: ");
   console.log(sentData);
@@ -69,7 +69,7 @@ router.get("/id_produto", async (req, res, next) => {
     q.queue,
     (data) => {
       recData = JSON.parse(data.content);
-      console.log("[.] Data Received in /produtos/id_produto:");
+      console.log("[.] Data Received in /produtos/:id_produto:");
       console.info(recData);
       if (data.properties.correlationId == uuid) {
       }
@@ -77,7 +77,7 @@ router.get("/id_produto", async (req, res, next) => {
         request: {
           tipo: "GET",
           descricao: "Retorna um Produto por ID",
-          url: "http://localhost:3000/produtos/id_produto",
+          url: "http://localhost:3000/produtos/:id_produto",
         },
         produto: recData,
       });

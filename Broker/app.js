@@ -78,7 +78,7 @@ const getProdutos = async () => {
   );
 };
 
-// Requisição GET para /produtos/lote
+// Requisição GET para /produtos/:id_produto
 const getProdutosID = async () => {
   const queueName = "getProdutosID";
   const connection = await amqplib.connect("amqp://localhost");
@@ -89,7 +89,7 @@ const getProdutosID = async () => {
   channel.consume(
     queueName,
     (data) => {
-      console.log("[.] Request Received: GET in /produtos/id_produto");
+      console.log("[.] Request Received: GET in /produtos/:id_produto");
       recData = data.content.toString();
       console.log("[.] Data Received: ");
       console.info(recData);
@@ -153,7 +153,7 @@ const getLotes = async () => {
   );
 };
 
-// Requisição GET para /lotes/id
+// Requisição GET para /lotes/:id_lote
 const getLotesID = async () => {
   const queueName = "getLotesID";
   const connection = await amqplib.connect("amqp://localhost");
@@ -164,7 +164,7 @@ const getLotesID = async () => {
   channel.consume(
     queueName,
     (data) => {
-      console.log("[.] Request Received: GET in /lotes/id_lote");
+      console.log("[.] Request Received: GET in /lotes/:id_lote");
       recData = data.content.toString();
       console.log("[.] Data Received: ");
       console.info(recData);

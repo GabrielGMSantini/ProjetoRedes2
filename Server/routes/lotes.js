@@ -44,8 +44,8 @@ router.get("/", async (req, res, next) => {
 });
 
 // Rota para Acessar as informações de um lote cadastrado
-router.get("/id_lote", async (req, res, next) => {
-  const sentData = req.body.id_lote;
+router.get("/:id_lote", async (req, res, next) => {
+  const sentData = req.params.id_lote;
   var recData;
 
   const connection = await amqplib.connect("amqp://localhost");
@@ -53,7 +53,7 @@ router.get("/id_lote", async (req, res, next) => {
   const channel = await connection.createChannel();
   const q = await channel.assertQueue("", { exclusive: true });
 
-  console.log("[X] Requesting GET/ in /lotes/id_lote" + "\n");
+  console.log("[X] Requesting GET/ in /lotes/:id_lote" + "\n");
   console.log("[X] Sending in queue getLotesID");
   console.log("[X] Data: ");
   console.log(sentData);
@@ -67,7 +67,7 @@ router.get("/id_lote", async (req, res, next) => {
     q.queue,
     (data) => {
       recData = JSON.parse(data.content);
-      console.log("[.] Data Received in /lotes/id_lote:");
+      console.log("[.] Data Received in /lotes/:id_lote:");
       console.info(recData);
       if (data.properties.correlationId == uuid) {
       }
@@ -75,7 +75,7 @@ router.get("/id_lote", async (req, res, next) => {
         request: {
           tipo: "GET",
           descricao: "Retorna um Lote por ID",
-          url: "http://localhost:3000/lotes/id_lote",
+          url: "http://localhost:3000/lotes/:id_lote",
         },
         estoque: recData,
       });
