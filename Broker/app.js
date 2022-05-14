@@ -79,8 +79,8 @@ const getProdutos = async () => {
 };
 
 // Requisição GET para /produtos/lote
-const getProdutosLote = async () => {
-  const queueName = "getProdutosLote";
+const getProdutosID = async () => {
+  const queueName = "getProdutosID";
   const connection = await amqplib.connect("amqp://localhost");
   const channel = await connection.createChannel();
   await channel.assertQueue(queueName, { durable: true });
@@ -89,13 +89,13 @@ const getProdutosLote = async () => {
   channel.consume(
     queueName,
     (data) => {
-      console.log("[.] Request Received: GET in /produtos/lote");
+      console.log("[.] Request Received: GET in /produtos/id_produto");
       recData = data.content.toString();
       console.log("[.] Data Received: ");
       console.info(recData);
       db.getConnection((err, conn) => {
         conn.query(
-          "SELECT * FROM produtos WHERE Lote = ?",
+          "SELECT * FROM produtos WHERE ID_PRODUTO = ?",
           [recData],
           (err, result, field) => {
             conn.release();
@@ -119,9 +119,9 @@ const getProdutosLote = async () => {
   );
 };
 
-// Requisição GET para /estoques
-const getEstoques = async () => {
-  const queueName = "getEstoques";
+// Requisição GET para /lotes
+const getLotes = async () => {
+  const queueName = "getLotes";
   const connection = await amqplib.connect("amqp://localhost");
   const channel = await connection.createChannel();
   await channel.assertQueue(queueName, { durable: true });
@@ -130,9 +130,9 @@ const getEstoques = async () => {
   channel.consume(
     queueName,
     (data) => {
-      console.log("[.] Request Received: " + data.content + " in /estoques");
+      console.log("[.] Request Received: " + data.content + " in /lotes");
       db.getConnection((err, conn) => {
-        conn.query("SELECT * FROM estoques", (err, result, field) => {
+        conn.query("SELECT * FROM lotes", (err, result, field) => {
           conn.release();
           console.log("[X] Replying in queue " + queueName);
           console.log("[X] Data: ");
@@ -153,9 +153,9 @@ const getEstoques = async () => {
   );
 };
 
-// Requisição GET para /produtos/lote
-const getEstoquesIdProduto = async () => {
-  const queueName = "getEstoquesIdProduto";
+// Requisição GET para /lotes/id
+const getLotesID = async () => {
+  const queueName = "getLotesID";
   const connection = await amqplib.connect("amqp://localhost");
   const channel = await connection.createChannel();
   await channel.assertQueue(queueName, { durable: true });
@@ -164,13 +164,13 @@ const getEstoquesIdProduto = async () => {
   channel.consume(
     queueName,
     (data) => {
-      console.log("[.] Request Received: GET in /estoques/id_produto");
+      console.log("[.] Request Received: GET in /lotes/id_lote");
       recData = data.content.toString();
       console.log("[.] Data Received: ");
       console.info(recData);
       db.getConnection((err, conn) => {
         conn.query(
-          "SELECT * FROM estoques WHERE fk_Produtos_ID_PRODUTO = ?",
+          "SELECT * FROM lotes WHERE ID_Lote = ?",
           [recData],
           (err, result, field) => {
             conn.release();
@@ -280,15 +280,13 @@ const postProdutos = async () => {
       sentData = "Request of POST in /produtos: Successful";
       db.getConnection((err, conn) => {
         conn.query(
-          "INSERT INTO produtos (Lote, ID_PRODUTO, Nome, Preco, Data_Fabricacao, Data_Validade, Origem) VALUES (?,?,?,?,?,?,?)",
+          "INSERT INTO produtos (ID_PRODUTO, Nome, Preco, QntTotal, QntMin) VALUES (?,?,?,?,?)",
           [
-            recData.lote,
             recData.id_produto,
             recData.nome,
             recData.preco,
-            recData.data_fabricacao,
-            recData.data_validade,
-            recData.origem,
+            recData.qntTotal,
+            recData.qntMin,
           ],
           (err, result, field) => {
             conn.release();
@@ -312,9 +310,9 @@ const postProdutos = async () => {
   );
 };
 
-// Requisição POST para /gondolas
-const postEstoques = async () => {
-  const queueName = "postEstoques";
+// Requisição POST para /lotes
+const postLotes = async () => {
+  const queueName = "postLotes";
   const connection = await amqplib.connect("amqp://localhost");
   const channel = await connection.createChannel();
   await channel.assertQueue(queueName, { durable: true });
@@ -323,16 +321,22 @@ const postEstoques = async () => {
   channel.consume(
     queueName,
     (data) => {
-      console.log("[.] Request Received: POST in /estoques");
+      console.log("[.] Request Received: POST in /lotes");
       recData = JSON.parse(data.content);
       console.log("[.] Data Received: ");
       console.info(recData);
-      sentData = "Request of POST in /estoques: Successful";
+      sentData = "Request of POST in /lotess: Successful";
       db.getConnection((err, conn) => {
         conn.query(
-          `INSERT INTO estoques (QntTotal, QntMin, fk_Produtos_ID_PRODUTO)
-          VALUES (?,?,?)`,
-          [recData.qntTotal, recData.qntMin, recData.id_produto],
+          `INSERT INTO lotes (ID_LOTE, Data_Fabricacao, Data_Validade, Origem, fk_Produtos_ID_PRODUTO)
+          VALUES (?,?,?,?,?)`,
+          [
+            recData.id_lote,
+            recData.data_fabricacao,
+            recData.data_validade,
+            recData.origem,
+            recData.id_produto,
+          ],
           (err, result, field) => {
             conn.release();
             console.log("[X] Replying in queue " + queueName);
@@ -403,9 +407,9 @@ const postGondolas = async () => {
   );
 };
 
-// Requisição PATCH para /estoques
-const patchEstoques = async () => {
-  const queueName = "patchEstoques";
+// Requisição PATCH para /produtos
+const patchProdutos = async () => {
+  const queueName = "patchProdutos";
   const connection = await amqplib.connect("amqp://localhost");
   const channel = await connection.createChannel();
   await channel.assertQueue(queueName, { durable: true });
@@ -414,16 +418,16 @@ const patchEstoques = async () => {
   channel.consume(
     queueName,
     (data) => {
-      console.log("[.] Request Received: PATCH in /estoques");
+      console.log("[.] Request Received: PATCH in /produtos");
       recData = JSON.parse(data.content);
       console.log("[.] Received Data: ");
       console.info(recData);
-      sentData = "Request of PATCH in /estoques: Successful";
+      sentData = "Request of PATCH in /produtos: Successful";
       db.getConnection((err, conn) => {
         conn.query(
-          `UPDATE estoques
-            SET QntTotal         = ?
-          WHERE fk_Produtos_ID_PRODUTO = ?`,
+          `UPDATE produtos
+            SET QntTotal   = ?
+          WHERE ID_PRODUTO = ?`,
           [recData.qntTotal, recData.id_produto],
           (err, result, field) => {
             conn.release();
@@ -543,17 +547,17 @@ const patchGondolas = async () => {
   );
 };
 
-getProdutos();
-getProdutosLote();
-getEstoques();
-getEstoquesIdProduto();
-getPrateleiras();
-getGondolas();
-postProdutos();
-postEstoques();
-postGondolas();
-patchEstoques();
-patchPrateleiras();
-patchGondolas();
+getProdutos(); //OK
+getProdutosID(); //OK
+getLotes(); //OK
+getLotesID(); //OK
+getPrateleiras(); //OK
+getGondolas(); //OK
+postProdutos(); //OK
+postLotes(); //OK
+postGondolas(); //OK
+patchProdutos(); //OK
+patchPrateleiras(); //OK
+patchGondolas(); //OK
 
 module.exports = app;

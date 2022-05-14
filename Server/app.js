@@ -8,7 +8,7 @@ app.use(cors());
 
 // Rotas usadas na aplicação
 const rotaProdutos = require("./routes/produtos");
-const rotaEstoques = require("./routes/estoques");
+const rotaLotes = require("./routes/lotes");
 const rotaPrateleiras = require("./routes/prateleiras");
 const rotaGondolas = require("./routes/gondolas");
 
@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 
 // Chamada das rotas da aplicação
 app.use("/produtos", rotaProdutos);
-app.use("/estoques", rotaEstoques);
+app.use("/lotes", rotaLotes);
 app.use("/prateleiras", rotaPrateleiras);
 app.use("/gondolas", rotaGondolas);
 
