@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,146 @@ import 'package:http/http.dart' as http;
 
 Color main1 = Color(0xff0452aa);
 Color main2 = Color(0xff030303);
+
+class QRdata {
+  final int ID_LOTE;
+  final DateTime Data_Fabricacao;
+  final DateTime Data_Validade;
+  final String Origem;
+  final int ID_PRODUTO;
+  final String Nome_Produto;
+  final double Preco_Produto;
+  final int QntMin;
+
+  const QRdata({
+    required this.ID_LOTE,
+    required this.Data_Fabricacao,
+    required this.Data_Validade,
+    required this.Origem,
+    required this.ID_PRODUTO,
+    required this.Nome_Produto,
+    required this.Preco_Produto,
+    required this.QntMin,
+  });
+
+  factory QRdata.fromJson(Map<String, dynamic> json) {
+    return QRdata(
+        ID_LOTE: json['ID_LOTE'],
+        Data_Fabricacao: DateTime.parse(json['Data_Fabricacao']),
+        Data_Validade: DateTime.parse(json['Data_Validade']),
+        Origem: json['Origem'],
+        ID_PRODUTO: json['ID_PRODUTO'],
+        Nome_Produto: json['Nome_Produto'],
+        Preco_Produto: json['Preco_Produto'],
+        QntMin: json['QntMin']);
+  }
+}
+
+class Produto {
+  final int ID;
+  final String nome;
+  final double preco;
+  final int qtdTotal;
+  final int qtdMin;
+
+  const Produto({
+    required this.ID,
+    required this.nome,
+    required this.preco,
+    required this.qtdTotal,
+    required this.qtdMin,
+  });
+
+  factory Produto.fromJson(Map<String, dynamic> json) {
+    return Produto(
+        ID: json['ID_PRODUTO'],
+        nome: json['Nome'],
+        preco: json['Preco'],
+        qtdTotal: json['QntTotal'],
+        qtdMin: json['QntMin']);
+  }
+}
+
+class Lote {
+  final int ID;
+  final int id_produto;
+  final DateTime fabricacao;
+  final DateTime validade;
+  final String origem;
+
+  const Lote({
+    required this.ID,
+    required this.id_produto,
+    required this.fabricacao,
+    required this.validade,
+    required this.origem,
+  });
+  factory Lote.fromJson(Map<String, dynamic> json) {
+    return Lote(
+        ID: json['ID_LOTE'],
+        id_produto: json['fk_Produtos_ID_PRODUTO'],
+        fabricacao: DateTime.parse(json['Data_Fabricacao']),
+        validade: DateTime.parse(json['Data_Validade']),
+        origem: json['Origem']);
+  }
+}
+
+Future<Lote?> GetLote(int id) async {
+  final response =
+      await http.get(Uri.parse('http://10.0.2.2:3000/lotes/' + id.toString()));
+  if (response.statusCode == 200) {
+    if (jsonDecode(response.body)['estoque'].isNotEmpty)
+      return Lote.fromJson(jsonDecode(response.body)['estoque'][0]);
+    else
+      return null;
+  } else {
+    throw Exception("falha em carregar o lote");
+  }
+}
+
+Future<http.Response> PostLote(Lote lote) {
+  return http.post(Uri.parse("http://10.0.2.2:3000/lotes"),
+      body: jsonEncode(<String, dynamic>{
+        'fk_Produtos_ID_PRODUTO': lote.id_produto,
+        'ID_LOTE': lote.ID,
+        'Data_Fabricacao': lote.fabricacao.toString(),
+        'Data_Validade': lote.validade.toString(),
+        'Origem': lote.origem,
+      }));
+}
+
+Future<Produto?> GetProduto(int id) async {
+  final response = await http.get(Uri.parse('http://10.0.2.2:3000/produtos/' +
+      id.toString())); // 10.0.2.2 é o localhost pro emulador
+  if (response.statusCode == 200) {
+    print(jsonDecode(response.body).toString());
+    if (jsonDecode(response.body)['produto'].isNotEmpty)
+      return Produto.fromJson(jsonDecode(response.body)['produto'][0]);
+    else
+      return null;
+  } else {
+    throw Exception("falha em carregar o lote");
+  }
+}
+
+Future<http.Response> PostProduto(Produto produto) {
+  return http.post(Uri.parse("http://10.0.2.2:3000/produtos"),
+      body: jsonEncode(<String, dynamic>{
+        'ID_PRODUTO': produto.ID,
+        'Nome': produto.nome,
+        'Preco': produto.preco,
+        'QntTotal': produto.qtdTotal,
+        'QntMin': produto.qtdMin,
+      }));
+}
+
+Future<http.Response> PatchProduto(int id, int qtd) {
+  return http.patch(Uri.parse("http://10.0.2.2:3000/produtos"),
+      body: jsonEncode(<String, dynamic>{
+        'ID_PRODUTO': id,
+        'QntTotal': qtd,
+      }));
+}
 
 void main() {
   runApp(MaterialApp(home: BarcodeReader()));
@@ -35,7 +176,6 @@ class _reader extends State<BarcodeReader> {
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
           '#ff6666', 'Cancel', true, ScanMode.QR);
-      print(barcodeScanRes);
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }
@@ -45,17 +185,20 @@ class _reader extends State<BarcodeReader> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    //if (barcodeScanRes != '-1')
-    //  get lote == barcodeScanRes
-    //  se sim: true
-    //  se não: false                                            aqui
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => addProduto(prod, true))); //prod placeholder
-    setState(() {
-      _scanBarcode = barcodeScanRes;
-    });
+    if (barcodeScanRes != '-1') {
+      //  get lote == barcodeScanRes
+      //  se sim: true
+      //  se não: false                                            aqui
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => addProduto(QRdata.fromJson(
+                  jsonDecode(barcodeScanRes))))); //prod placeholder
+      setState(() {
+        _scanBarcode = barcodeScanRes;
+      });
+    }
   }
 
   @override
@@ -85,37 +228,41 @@ class _reader extends State<BarcodeReader> {
 }
 
 class addProduto extends StatefulWidget {
-  addProduto(this.produto, this.LoteExistente);
+  addProduto(this.data);
 
-  final Produto produto;
-  final bool LoteExistente;
+  final QRdata data;
 
   @override
-  State<addProduto> createState() => _addProdutoState(produto, LoteExistente);
+  State<addProduto> createState() => _addProdutoState(data);
 }
 
 class _addProdutoState extends State<addProduto> {
-  _addProdutoState(this.produto, this.LoteExistente);
-  final Produto produto;
-  final bool LoteExistente;
+  _addProdutoState(this.data);
+  final QRdata data;
   final input = TextEditingController();
 
   Widget _body = CircularProgressIndicator();
   String question = '';
   Widget buttons = Row();
   bool isEnabled = true;
+  bool loteExistente = false;
   int? toAdd = 1;
+
   @override
   void initState() {
-    if (!LoteExistente) {
-      setState(() {
-        buttons = addCancel();
-        _body = produtoData();
-      });
-    } else
-      setState(() {
-        _body = sameLot();
-      });
+    GetLote(data.ID_LOTE).then((value) {
+      if (value == null) {
+        setState(() {
+          buttons = addCancel();
+          _body = produtoData();
+        });
+      } else {
+        loteExistente = true;
+        setState(() {
+          _body = sameLot();
+        });
+      }
+    });
   }
 
   Widget sameLot() {
@@ -123,11 +270,16 @@ class _addProdutoState extends State<addProduto> {
       appBar: AppBar(backgroundColor: main1, title: Text("Aviso")),
       body: Center(
           child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Text("lote já registrado, deseja adicionar a ele?"),
+          Text("lote já registrado, deseja adicionar ele?",
+              style: TextStyle(fontSize: 22)),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               FlatButton(
+                  color: main1,
+                  textColor: Colors.white,
                   onPressed: () {
                     setState(() {
                       buttons = addCancel();
@@ -136,6 +288,8 @@ class _addProdutoState extends State<addProduto> {
                   },
                   child: Text("Sim")),
               FlatButton(
+                  color: main1,
+                  textColor: Colors.white,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -151,17 +305,18 @@ class _addProdutoState extends State<addProduto> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: main1,
-        title: Text(produto.nome),
+        title: Text("Adicionar: " + data.Nome_Produto),
       ),
       body: Column(children: [
-        Expanded(
+        /* Expanded(
           flex: 5,
           child: Image(
             image: AssetImage(produto.foto), // provavelmente terá q mudar
           ),
-        ),
+        ), */
         Expanded(
-            flex: 1, child: Text(produto.nome, style: TextStyle(fontSize: 32))),
+            flex: 1,
+            child: Text(data.Nome_Produto, style: TextStyle(fontSize: 32))),
         Expanded(
             flex: 1,
             child: TextField(
@@ -200,7 +355,7 @@ class _addProdutoState extends State<addProduto> {
                     "adicionar " +
                         toAdd.toString() +
                         " " +
-                        produto.nome +
+                        data.Nome_Produto +
                         "(s)?",
                     confirm());
               } else {
@@ -231,15 +386,34 @@ class _addProdutoState extends State<addProduto> {
             color: main1,
             textColor: Colors.white,
             onPressed: () {
-              //  se LoteExistente = true: patch estoque,  se false: Post Lote, get estoque, se existe produto: Patch estoque, se não: Post estoque
-              changeButton(
-                  false,
-                  "adicionado " +
-                      toAdd.toString() +
-                      " " +
-                      produto.nome +
-                      "(s) com sucesso!",
-                  end());
+              //Post Lote se não existe, get produtos, se existe produto: Patch produto, se não: Post produto
+
+              setState(() {
+                buttons = CircularProgressIndicator();
+              });
+
+              GetProduto(data.ID_PRODUTO).then(((value) {
+                handleProduct(value).then((value) {
+                  if (!loteExistente) {
+                    print("lote post");
+                    PostLote(Lote(
+                        ID: data.ID_LOTE,
+                        id_produto: data.ID_PRODUTO,
+                        fabricacao: data.Data_Fabricacao,
+                        validade: data.Data_Validade,
+                        origem: data.Origem));
+                  }
+                }).then((value) {
+                  changeButton(
+                      false,
+                      "adicionado " +
+                          toAdd.toString() +
+                          " " +
+                          data.Nome_Produto +
+                          "(s) com sucesso!",
+                      end());
+                });
+              }));
             },
             child: Text("Sim")),
         FlatButton(
@@ -269,6 +443,22 @@ class _addProdutoState extends State<addProduto> {
     );
   }
 
+  handleProduct(value) async {
+    if (value == null) {
+      print("produto post");
+      return PostProduto(Produto(
+          ID: data.ID_PRODUTO,
+          nome: data.Nome_Produto,
+          preco: data.Preco_Produto,
+          qtdTotal: int.parse(toAdd.toString()),
+          qtdMin: data.QntMin));
+    } else {
+      print("produto patch");
+      return PatchProduto(
+          data.ID_PRODUTO, value.qtdTotal + int.parse(toAdd.toString()));
+    }
+  }
+
   void changeButton(bool allowInput, String q, Widget newButtons) {
     setState(() {
       isEnabled = allowInput;
@@ -281,31 +471,5 @@ class _addProdutoState extends State<addProduto> {
   @override
   Widget build(BuildContext context) {
     return _body;
-  }
-}
-
-Produto prod = Produto("assets/Hat.png", 420, 69, "cool hat", 420.69,
-    DateTime(2022, 05, 12), DateTime(3022, 05, 13), "Texas");
-
-class Produto {
-  String foto = '';
-  int lote = 0;
-  int id_produto = 0;
-  String nome = '';
-  double preco = 0.0;
-  DateTime fabricacao = DateTime(0, 0, 0);
-  DateTime validade = DateTime(0, 0, 0);
-  String origem = '';
-
-  Produto(String f, int l, int id, String n, double p, DateTime fab,
-      DateTime val, String o) {
-    foto = f;
-    lote = l;
-    id_produto = id;
-    nome = n;
-    preco = p;
-    fabricacao = fab;
-    validade = val;
-    origem = o;
   }
 }
