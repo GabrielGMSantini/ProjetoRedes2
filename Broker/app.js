@@ -589,6 +589,52 @@ const getMongo = async()=>{
 
 }
 
+// Requisição PATCH para /Mongodb/rotatividade
+const patchMongoReposicoesPlusOne = async () => {
+  const queueName = "patchMongoReposicoesPlusOne";
+  const connection = await amqplib.connect("amqp://localhost");
+  const channel = await connection.createChannel();
+  await channel.assertQueue(queueName, { durable: true });
+  const uri = "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
+  const client = new MongoClient(uri);
+  await client.connect();
+  channel.prefetch(1);
+
+  channel.consume(
+    queueName,
+    async (data) => {
+      console.log("[.] Request Received: PATCH in /Mongodb/reposicoesplusone");
+      recData = JSON.parse(data.content);
+      console.log("[.] Received Data: ");
+      console.info(recData);
+      sentData = "Request of PATCH in /Mongodb/reposicoesplusone: Successful";
+      databasesList = await client.db("Redes2").collection("Redes2");
+      documento = await databasesList.findOne({"nome": recData.Nome});
+      console.log(documento);
+      reposicoes = documento.reposições + 1;
+      const updateResult = await databasesList.updateOne({ "nome": recData.Nome }, { $set: { "reposições": reposicoes } });
+      console.log('Updated documents =>', updateResult);
+      
+        
+            console.log("[X] Replying in queue " + queueName);
+            console.log("[X] Data: ");
+            console.log(sentData);
+            channel.sendToQueue(
+              data.properties.replyTo,
+              Buffer.from(sentData.toString()),
+              {
+                correlationId: data.properties.correlationId,
+              }
+              );
+            
+    
+          channel.ack(data);
+        },
+        { noAck: false }
+      );
+    
+    }
+
 const getMongoNome = async () => {
   const queueName = "getMongoNome";
   const connection = await amqplib.connect("amqp://localhost");
@@ -627,7 +673,89 @@ const getMongoNome = async () => {
     
 }
 
+const patchMongoreposicoes = async () => {
+  const queueName = "patchMongoreposicoes";
+  const connection = await amqplib.connect("amqp://localhost");
+  const channel = await connection.createChannel();
+  await channel.assertQueue(queueName, { durable: true });
+  const uri = "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
+  const client = new MongoClient(uri);
+  await client.connect();
+  channel.prefetch(1);
 
+  channel.consume(
+    queueName,
+    async (data) => {
+      console.log("[.] Request Received: PATCH in /Mongodb/reposicoes");
+      recData = JSON.parse(data.content);
+      console.log("[.] Received Data: ");
+      console.info(recData);
+      sentData = "Request of PATCH in /Mongodb/reposicoes: Successful";
+      databasesList = await client.db("Redes2").collection("Redes2");
+      const updateResult = await databasesList.updateOne({ "nome": recData.Nome }, { $set: { "reposições": recData.reposições } });
+      console.log('Updated documents =>', updateResult);
+      
+        
+            console.log("[X] Replying in queue " + queueName);
+            console.log("[X] Data: ");
+            console.log(sentData);
+            channel.sendToQueue(
+              data.properties.replyTo,
+              Buffer.from(sentData.toString()),
+              {
+                correlationId: data.properties.correlationId,
+              }
+              );
+            
+    
+          channel.ack(data);
+        },
+        { noAck: false }
+      );
+    
+    }
+
+    const postMongo = async () => {
+      const queueName = "postMongo";
+      const connection = await amqplib.connect("amqp://localhost");
+      const channel = await connection.createChannel();
+      await channel.assertQueue(queueName, { durable: true });
+      const uri = "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
+      const client = new MongoClient(uri);
+      await client.connect();
+      channel.prefetch(1);
+    
+      channel.consume(
+        queueName,
+        async (data) => {
+          console.log("[.] Request Received: POST in /Mongodb");
+          recData = JSON.parse(data.content);
+          console.log("[.] Received Data: ");
+          console.info(recData);
+          sentData = "Request of POST in /Mongodb: Successful";
+          databasesList = await client.db("Redes2").collection("Redes2");
+          const updateResult = await databasesList.insertOne(recData);
+          console.log('Updated documents =>', updateResult);
+          
+            
+                console.log("[X] Replying in queue " + queueName);
+                console.log("[X] Data: ");
+                console.log(sentData);
+                channel.sendToQueue(
+                  data.properties.replyTo,
+                  Buffer.from(sentData.toString()),
+                  {
+                    correlationId: data.properties.correlationId,
+                  }
+                  );
+                
+        
+              channel.ack(data);
+            },
+            { noAck: false }
+          );
+        
+        }
 
 getProdutos(); //OK
 getProdutosID(); //OK
@@ -643,4 +771,7 @@ patchPrateleiras(); //OK
 patchGondolas(); //OK
 getMongo(); //OK
 getMongoNome(); //OK
+patchMongoReposicoesPlusOne(); //OK
+patchMongoreposicoes(); //OK
+postMongo();
 module.exports = app;
