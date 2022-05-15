@@ -471,9 +471,9 @@ const patchPrateleiras = async () => {
         conn.query(
           `UPDATE prateleiras
             SET QntTotal         = ?,
-                fk_Produtos_Lote = ?
+                fk_Produtos_ID_PRODUTO = ?
           WHERE ID_PRATELEIRA    = ?`,
-          [recData.qntTotal, recData.lote, recData.id_prateleira],
+          [recData.qntTotal, recData.id_produto, recData.id_prateleira],
           (err, result, field) => {
             conn.release();
             console.log("[X] Replying in queue " + queueName);
