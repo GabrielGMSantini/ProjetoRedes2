@@ -2,16 +2,18 @@ const express = require("express");
 const app = express();
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
+const { MongoClient, ServerApiVersion } = require('mongodb');
 
 const cors = require("cors");
 app.use(cors());
+
 
 // Rotas usadas na aplicação
 const rotaProdutos = require("./routes/produtos");
 const rotaLotes = require("./routes/lotes");
 const rotaPrateleiras = require("./routes/prateleiras");
 const rotaGondolas = require("./routes/gondolas");
-
+const rotaMongo = require("./routes/Mongodb");
 // Uso do Morgan para monitoramento de requisições
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: false })); // Para dados simples
@@ -37,7 +39,7 @@ app.use("/produtos", rotaProdutos);
 app.use("/lotes", rotaLotes);
 app.use("/prateleiras", rotaPrateleiras);
 app.use("/gondolas", rotaGondolas);
-
+app.use("/Mongodb", rotaMongo);
 // Tratamento de erro ao não encontrar uma Rota válida
 app.use((req, res, next) => {
   const erro = new Error("Rota não encontrada.");
