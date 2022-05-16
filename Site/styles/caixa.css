@@ -1,0 +1,265 @@
+.noticiaContainer {
+    background-color: rgb(74, 123, 156);
+    position: fixed;
+    left: 3%;
+    right: 50%;
+    top: 79.5%;
+    bottom: 7%;
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+  }
+
+  .noticiaContainer img {
+    margin-left: 30px;
+  }
+
+  @media only screen and (max-width: 890px) {
+    .noticiaContainer img {
+      display: none;
+    }
+  }
+
+  .noticiaContainer p {
+    color: white;
+    font-size: 14px;
+  }
+
+  @media only screen and (max-width: 890px) {
+    .noticiaContainer p {
+      display: none;
+    }
+  }
+  
+  .noticiaContainer a {
+    position: absolute;
+    color: white;
+    text-decoration: none;
+    padding: 12px;
+    left: 30%;
+    right: 5%;
+    bottom: 15px;
+    padding-top: 20px;
+    padding-left: 40px;
+    font-size: 8px;
+  }
+  
+  @media only screen and (min-width: 1110px) {
+    .noticiaContainer a {
+      font-size: 14px;
+      bottom: 5px;
+    }
+  }
+
+  @media only screen and (min-width: 1000px) and (max-width: 1110px) {
+    .noticiaContainer a {
+      font-size: 12px;
+      bottom: 10px;
+    }
+  }
+  
+  @media only screen and (min-width: 680px) and (max-width: 1000px) {
+    .noticiaContainer a {
+      font-size: 10px;
+      bottom: 15px;
+    }
+  }
+  
+  @media only screen and (min-width: 580px) and (max-width: 680px) {
+    .noticiaContainer a {
+      font-size: 9px;
+      bottom: 15px;
+    }
+  }
+
+  @media only screen and (min-width: 520px) and (max-width: 580px) {
+    .noticiaContainer a {
+      font-size: 8px;
+      bottom: 15px;
+    }
+  }
+
+  @media only screen and (max-width: 890px) {
+    .noticiaContainer a {
+      left: 0%;
+    }
+  }
+
+  .searchContainer {
+    background-color: #ddd;
+    position: fixed;
+    left: 52%;
+    right: 37%;
+    top: 79.5%;
+    bottom: 7%;
+    text-align: center;
+  }
+  
+  .searchContainer:hover {
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .searchContainer a {
+    position: fixed;
+    left: 52%;
+    right: 37%;
+    top: 79.5%;
+    bottom: 7%;
+    padding-top: 20px;
+    color: black;
+    text-decoration: none;
+    font-size: 12px;
+  }
+
+  .searchContainer a:hover {
+    color: white;
+  }
+  
+  @media only screen and (min-width: 1020px) {
+    .searchContainer a {
+      font-size: 20px;
+    }
+  }
+  
+  @media only screen and (min-width: 800px) and (max-width: 1020px) {
+    .searchContainer a {
+      font-size: 16px;
+    }
+  }
+  
+  @media only screen and (min-width: 600px) and (max-width: 800px) {
+    .searchContainer a {
+      font-size: 14px;
+    }
+  }
+  
+  .vendaPrecoContainer {
+    background-color: white;
+    position: fixed;
+    left: 65%;
+    right: 23%;
+    top: 79.5%;
+    bottom: 7%;
+  }
+  
+  .vendaPrecoContainer h1 {
+    text-align: center;
+    margin-top: 15%;
+    color: red;
+    text-decoration: none;
+    font-size: 30px;
+  }
+  
+  .vendaBottomContainer {
+    background-color: rgb(157, 255, 101);
+    position: fixed;
+    left: 79%;
+    right: 5%;
+    top: 79.5%;
+    bottom: 7%;
+  }
+  
+  .vendaBottomContainer:hover {
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .vendaBottomContainer h1 {
+    text-align: center;
+    margin-top: 12.5%;
+    text-decoration: none;
+    font-size: 20px;
+  }
+
+  .modalMainContainer {
+    background-color: white;
+    position: fixed;
+    left: 3%;
+    right: 5%;
+    top: 18%;
+    bottom: 10%;
+    display: flex;
+    flex-direction: row;
+    overflow: auto; 
+  }
+
+  .modalPratContainer {
+    margin-left: 0.5%;
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+  }
+
+  .modalPratContainer h2 {
+    margin-top: 0.4%;
+    font-size: 12px;
+    border: 1px solid #ccc; 
+  }
+  
+  .modalPratContainer p {
+    background-color: rgb(236, 236, 236);
+    margin-left: 12px;
+    padding: 20px 10px;
+    margin-right: 20px;
+    font-size: 14px;
+  }
+
+  .modalElement {
+    padding-left: 6px;
+    padding-right: 6px;
+    margin-left: 2px;
+    margin-right: 2px;
+  }
+
+  .modalButton {
+    padding-left: 6px;
+    padding-right: 6px;
+    margin-left: 6px;
+    margin-right: 1px;
+  }
+
+  .modalAddButton {
+    background-color: rgb(236, 236, 236);
+    margin-left: 12px;
+    padding: 18px 10px;
+    margin-right: 20px;
+    font-size: 16px;
+  }
+
+  .modalVoidButton {
+    background-color: rgb(236, 236, 236);
+    margin-left: 12px;
+    padding-bottom: 54px;
+    margin-right: 20px;
+    font-size: 16px;
+  }
+
+  .modalAddButton:hover {
+    background-color: #333;
+    color: red;
+    cursor: pointer;
+  }
+
+  .formContainer {
+    background-color: #0452aa;
+    color: white;
+    margin-top: 32px;
+    width: 200px;
+    height: 200px;
+    margin-left: 50px;
+    padding: 20px 10px;
+    margin-right: 20px;
+    font-size: 14px;
+  }
+
+  .formContainer form {
+    padding-top: 20px;
+  }
+
+  .formContainer input {
+    margin-top: 8px;
+    margin-bottom: 20px;
+  }

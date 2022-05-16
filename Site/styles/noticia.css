@@ -1,0 +1,17 @@
+.mainContainer {
+    background-color: rgb(89, 149, 189);
+    top: 18%;
+    bottom: 5%;
+}
+
+.noticiaContainer {
+    text-align: center;
+}
+
+.noticiaContainer img {
+    margin-top: 20px;
+}
+
+.noticiaContainer h1 {
+    font-size: 38px;
+}
