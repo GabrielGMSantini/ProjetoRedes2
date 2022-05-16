@@ -54,19 +54,7 @@ function mostraPrateleiras() {
   for (var i = 0; i < dataPrateleiras.quantidade; i++) {
     var tag = document.createElement("p");
     tag.classList.add("pratElem");
-    if (dataPrateleiras.prateleiras[i].fk_Produtos_ID_PRODUTO == null) {
-      var text = document.createTextNode("Nenhum");
-    } else {
-      for (var j = 0; j < dataProdutos.quantidade; j++) {
-        if (
-          dataProdutos.produtos[j].ID_PRODUTO ==
-          dataPrateleiras.prateleiras[i].fk_Produtos_ID_PRODUTO
-        ) {
-          product_name = dataProdutos.produtos[j].Nome;
-        }
-      }
-      var text = document.createTextNode(product_name);
-    }
+    var text = document.createTextNode(dataProdutos.produtos[i].Nome);
     tag.appendChild(text);
     var modal_container = document.getElementById("prateleiraProductNome");
     modal_container.appendChild(tag);
@@ -75,13 +63,7 @@ function mostraPrateleiras() {
   for (var i = 0; i < dataPrateleiras.quantidade; i++) {
     var tag = document.createElement("p");
     tag.classList.add("pratElem");
-    if (dataPrateleiras.prateleiras[i].fk_Produtos_ID_PRODUTO == null) {
-      var text = document.createTextNode("Nenhum");
-    } else {
-      var text = document.createTextNode(
-        dataPrateleiras.prateleiras[i].fk_Produtos_ID_PRODUTO
-      );
-    }
+    var text = document.createTextNode(dataProdutos.produtos[i].ID_PRODUTO);
     tag.appendChild(text);
     var modal_container = document.getElementById("prateleiraProductID");
     modal_container.appendChild(tag);
@@ -90,19 +72,7 @@ function mostraPrateleiras() {
   for (var i = 0; i < dataPrateleiras.quantidade; i++) {
     var tag = document.createElement("p");
     tag.classList.add("pratElem");
-    if (dataPrateleiras.prateleiras[i].fk_Produtos_ID_PRODUTO == null) {
-      var text = document.createTextNode("Nenhum");
-    } else {
-      for (var j = 0; j < dataProdutos.quantidade; j++) {
-        if (
-          dataProdutos.produtos[j].ID_PRODUTO ==
-          dataPrateleiras.prateleiras[i].fk_Produtos_ID_PRODUTO
-        ) {
-          product_preco = dataProdutos.produtos[j].Preco;
-        }
-      }
-      var text = document.createTextNode("R$ " + product_preco.toFixed(2));
-    }
+    var text = document.createTextNode(dataProdutos.produtos[i].Preco);
     tag.appendChild(text);
     var modal_container = document.getElementById("prateleiraProductPreco");
     modal_container.appendChild(tag);
@@ -188,27 +158,16 @@ function escolhePrateleira(i) {
     `Tirando do Estoque  de ${dataProdutos.produtos[i].Nome}`
   );
   container.appendChild(text0);
-  var br = document.createElement("br");
   var form = document.createElement("form");
-  var label1 = document.createElement("label");
-  var text1 = document.createTextNode("ID da Prateleira destino");
-  var input1 = document.createElement("input");
-  input1.type = "text";
-  input1.name = "prat_id";
-  input1.setAttribute("id", "input1");
-  label1.appendChild(text1);
-  form.appendChild(label1);
-  form.appendChild(input1);
-  form.appendChild(br);
-  var label2 = document.createElement("label");
-  var text2 = document.createTextNode("Número de produtos");
-  var input2 = document.createElement("input");
-  input2.type = "text";
-  input2.name = "prat_qtde";
-  input2.setAttribute("id", "input2");
-  label2.appendChild(text2);
-  form.appendChild(label2);
-  form.appendChild(input2);
+  var label = document.createElement("label");
+  var text = document.createTextNode("Número de produtos");
+  var input = document.createElement("input");
+  input.type = "text";
+  input.name = "prat_qtde";
+  input.setAttribute("id", "input");
+  label.appendChild(text);
+  form.appendChild(label);
+  form.appendChild(input);
   var submit = document.createElement("input");
   submit.type = "a";
   submit.name = "Submit";
@@ -224,30 +183,9 @@ function escolhePrateleira(i) {
 
 // PATCHs e Validações necessárias (Estoque -> Prateleira)
 async function adicionaPrateleira(i) {
-  var indexPrat;
-  var id_prat = document.getElementById("input1").value;
-  var qtde = document.getElementById("input2").value;
-
-  if (id_prat > 20 || id_prat < 1) {
-    alert("Essa prateleira não existe!!");
-    history.go(-1);
-    return;
-  }
-  for (var j = 0; j < dataPrateleiras.quantidade; j++) {
-    if (dataPrateleiras.prateleiras[j].ID_PRATELEIRA == id_prat) {
-      indexPrat = j;
-      break;
-    }
-  }
-  if (
-    dataPrateleiras.prateleiras[indexPrat].fk_Produtos_ID_PRODUTO !=
-      dataProdutos.produtos[i].ID_PRODUTO &&
-    dataPrateleiras.prateleiras[indexPrat].fk_Produtos_ID_PRODUTO != null
-  ) {
-    alert("Essa prateleira possui um tipo diferente de produto!!");
-    history.go(-1);
-    return;
-  }
+  var id_prat = i+1;
+  var qtde = document.getElementById("input").value;
+  
   if (qtde > dataProdutos.produtos[i].QntTotal) {
     alert("Esse número de produtos excede a quantidade no estoque!!");
     history.go(-1);
@@ -264,12 +202,12 @@ async function adicionaPrateleira(i) {
     return;
   }
 
-  var aux1 = parseInt(dataPrateleiras.prateleiras[indexPrat].QntTotal);
+  var aux1 = parseInt(dataPrateleiras.prateleiras[i].QntTotal);
   var aux2 = parseInt(qtde);
   var qtdePrat = aux1 + aux2;
   console.log(qtdePrat);
 
-  if (qtdePrat > dataPrateleiras.prateleiras[indexPrat].QntMax) {
+  if (qtdePrat > dataPrateleiras.prateleiras[i].QntMax) {
     alert("Esse número de produtos excede a quantidade máxima da prateleira!!");
     history.go(-1);
     return;
