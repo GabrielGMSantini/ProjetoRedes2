@@ -230,12 +230,23 @@ async function adicionaPrateleira(i) {
     alert(
       "ATENÇÃO: Quantidade no estoque abaixo da esperada, favor reestocá-lo!!"
     );
-    //CONEXÃO COM MONGO NECESSÁRIA
+    history.go(-1);
+    return;
   }
 
   var id_produto = dataProdutos.produtos[i].ID_PRODUTO.toString();
 
-  fetch("http://localhost:3000/prateleiras", {
+  await fetch("http://localhost:3000/Mongodb/abastecimentosplusone", {
+    method: "PATCH",
+    body: JSON.stringify({
+      Nome: dataProdutos.produtos[i].Nome,
+    }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  });
+
+  await fetch("http://localhost:3000/prateleiras", {
     method: "PATCH",
     body: JSON.stringify({
       qntTotal: qtdePrat,
@@ -247,7 +258,7 @@ async function adicionaPrateleira(i) {
     },
   });
 
-  fetch("http://localhost:3000/produtos", {
+  await fetch("http://localhost:3000/produtos", {
     method: "PATCH",
     body: JSON.stringify({
       qntTotal: qtdeNova,

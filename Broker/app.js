@@ -465,10 +465,9 @@ const patchPrateleiras = async () => {
       db.getConnection((err, conn) => {
         conn.query(
           `UPDATE prateleiras
-            SET QntTotal         = ?,
-                fk_Produtos_ID_PRODUTO = ?
+            SET QntTotal         = ?
           WHERE ID_PRATELEIRA    = ?`,
-          [recData.qntTotal, recData.id_produto, recData.id_prateleira],
+          [recData.qntTotal, recData.id_prateleira],
           (err, result, field) => {
             conn.release();
             console.log("[X] Replying in queue " + queueName);
@@ -514,6 +513,49 @@ const patchGondolas = async () => {
                 PrecoTotal             = ?
           WHERE ID_GONDOLA             = ?`,
           [recData.qntTotal, recData.precoTotal, recData.id_gondola],
+          (err, result, field) => {
+            conn.release();
+            console.log("[X] Replying in queue " + queueName);
+            console.log("[X] Data: ");
+            console.log(sentData);
+            channel.sendToQueue(
+              data.properties.replyTo,
+              Buffer.from(sentData.toString()),
+              {
+                correlationId: data.properties.correlationId,
+              }
+            );
+          }
+        );
+      });
+
+      channel.ack(data);
+    },
+    { noAck: false }
+  );
+};
+
+// Requisição DELETE para /gondolas
+const deleteGondolas = async () => {
+  const queueName = "deleteGondolas";
+  const connection = await amqplib.connect("amqp://localhost");
+  const channel = await connection.createChannel();
+  await channel.assertQueue(queueName, { durable: true });
+  channel.prefetch(1);
+
+  channel.consume(
+    queueName,
+    (data) => {
+      console.log("[.] Request Received: DELETE in /gondolas");
+      recData = JSON.parse(data.content);
+      console.log("[.] Received Data: ");
+      console.info(recData);
+      sentData = "Request of DELETE in /gondolas: Successful";
+      db.getConnection((err, conn) => {
+        conn.query(
+          `DELETE FROM gondolas
+          WHERE ID_GONDOLA = ?`,
+          [recData.id_gondola],
           (err, result, field) => {
             conn.release();
             console.log("[X] Replying in queue " + queueName);
@@ -891,6 +933,7 @@ postGondolas(); //OK
 patchProdutos(); //OK
 patchPrateleiras(); //OK
 patchGondolas(); //OK
+deleteGondolas(); //OK
 getMongo(); //OK
 getMongoNome(); //OK
 patchMongoReposicoesPlusOne(); //OK

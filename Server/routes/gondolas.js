@@ -45,7 +45,7 @@ router.get("/", async (req, res, next) => {
   );
 });
 
-// Rota para cadastrar uma nova sessão de gondola
+// Rota para cadastrar uma nova sessão do caixa
 router.post("/", async (req, res, next) => {
   var recData;
   var sentData = req.body;
@@ -86,7 +86,7 @@ router.post("/", async (req, res, next) => {
   );
 });
 
-// Rota para Atualizar informações de um estoque
+// Rota para Atualizar informações do caixa
 router.patch("/", async (req, res, next) => {
   var recData;
   var sentData = req.body;
@@ -96,7 +96,7 @@ router.patch("/", async (req, res, next) => {
   const channel = await connection.createChannel();
   const q = await channel.assertQueue("", { exclusive: true });
 
-  console.log("[X] Requesting POST in /gondolas" + "\n");
+  console.log("[X] Requesting PATCH in /gondolas" + "\n");
   console.log("[X] Sending in queue patchGondolas");
   console.log("[X] Data: ");
   console.info(sentData);
@@ -118,6 +118,47 @@ router.patch("/", async (req, res, next) => {
         request: {
           tipo: "PATCH",
           descricao: "Atualiza uma sessão de Gondola",
+          url: "http://localhost:3000/gondolas",
+        },
+        response: recData,
+      });
+    },
+    { noAck: true }
+  );
+});
+
+// Rota para deletar uma sessão do caixa
+router.delete("/", async (req, res, next) => {
+  var recData;
+  var sentData = req.body;
+
+  const connection = await amqplib.connect("amqp://localhost");
+
+  const channel = await connection.createChannel();
+  const q = await channel.assertQueue("", { exclusive: true });
+
+  console.log("[X] Requesting DELETE in /gondolas" + "\n");
+  console.log("[X] Sending in queue deleteGondolas");
+  console.log("[X] Data: ");
+  console.info(sentData);
+
+  channel.sendToQueue("deleteGondolas", Buffer.from(JSON.stringify(sentData)), {
+    replyTo: q.queue,
+    correlationId: uuid,
+  });
+
+  channel.consume(
+    q.queue,
+    (data) => {
+      recData = data.content.toString();
+      console.log("[.] Data Received in /gondolas:");
+      console.log(recData);
+      if (data.properties.correlationId == uuid) {
+      }
+      return res.send({
+        request: {
+          tipo: "DELETE",
+          descricao: "Deleta uma sessão de Gondola",
           url: "http://localhost:3000/gondolas",
         },
         response: recData,

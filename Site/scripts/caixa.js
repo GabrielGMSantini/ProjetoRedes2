@@ -135,6 +135,15 @@ async function mostraPrateleiras() {
   for (var i = 0; i < dataPrateleiras.quantidade; i++) {
     var tag = document.createElement("p");
     tag.classList.add("tag");
+    var text = document.createTextNode(dataPrateleiras.prateleiras[i].QntMin);
+    tag.appendChild(text);
+    var modal_container = document.getElementById("prateleiraQntMin");
+    modal_container.appendChild(tag);
+  }
+
+  for (var i = 0; i < dataPrateleiras.quantidade; i++) {
+    var tag = document.createElement("p");
+    tag.classList.add("tag");
     var text = document.createTextNode(dataPrateleiras.prateleiras[i].QntMax);
     tag.appendChild(text);
     var modal_container = document.getElementById("prateleiraQntMax");
@@ -258,7 +267,6 @@ function escolhePrateleira(i) {
 // PATCHs, POSTs e Validações necessárias (Prateleira -> Caixa)
 async function adicionaCarrinho(i) {
   var qtde = document.getElementById("input").value;
-  var id_produto;
   var id_prat = i + 1;
   var preco_produto;
 
@@ -281,37 +289,21 @@ async function adicionaCarrinho(i) {
   var aux1 = parseInt(dataPrateleiras.prateleiras[i].QntTotal);
   var aux2 = parseInt(qtde);
   var qtdePrat = aux1 - aux2;
-  console.log(qtdePrat);
 
-  if (qtdePrat < 1) {
+  if (qtdePrat == 0) {
     alert("Essa prateleira agora está vazia.");
-    id_produto = null;
-    fetch("http://localhost:3000/prateleiras", {
-      method: "PATCH",
-      body: JSON.stringify({
-        qntTotal: qtdePrat,
-        id_produto: id_produto,
-        id_prateleira: id_prat,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    });
-  } else {
-    id_produto =
-      dataPrateleiras.prateleiras[i].fk_Produtos_ID_PRODUTO.toString();
-    fetch("http://localhost:3000/prateleiras", {
-      method: "PATCH",
-      body: JSON.stringify({
-        qntTotal: qtdePrat,
-        id_produto: id_produto,
-        id_prateleira: id_prat,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    });
   }
+  fetch("http://localhost:3000/prateleiras", {
+    method: "PATCH",
+    body: JSON.stringify({
+      qntTotal: qtdePrat,
+      id_prateleira: id_prat,
+    }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  });
+  
 
   id_produto = dataPrateleiras.prateleiras[i].fk_Produtos_ID_PRODUTO.toString();
 
@@ -327,7 +319,6 @@ async function adicionaCarrinho(i) {
   var aux3 = parseFloat(preco_produto);
   var aux4 = parseInt(qtde);
   var preco_total = aux3 * aux4;
-  console.log(qtdePrat);
 
   for (var k = 0; k < dataCaixa.quantidade; k++) {
     if (
@@ -390,8 +381,45 @@ function fechaForm() {
   }
 }
 
-function finalizaVenda() {
+async function finalizaVenda() {
+  var vendasArray= [];
+  var produto_nome;
   if (confirm("Tem certeza que deseja finalizar a venda?")) {
+    for(var j = 0; j < dataCaixa.quantidade; j++){
+      var vendas = {};
+      for(k = 0; k < dataProdutos.quantidade; k++){
+        if(dataProdutos.produtos[k].ID_PRODUTO == dataCaixa.gondolas[j].fk_Produtos_ID_PRODUTO){
+          produto_nome = dataProdutos.produtos[k].Nome;
+          break;
+        }
+      }
+      vendas.Nome = produto_nome;
+      vendas.vendas = dataCaixa.gondolas[j].QntTotal;
+      console.log(vendas);
+      vendasArray[j] = vendas;
+    }
+
+    await fetch("http://localhost:3000/Mongodb/somavendas", {
+        method: "PATCH",
+        body: JSON.stringify(vendasArray),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      });
+
+    for(var i = 0; i < dataCaixa.quantidade; i++){
+      id_gondola = dataCaixa.gondolas[i].ID_GONDOLA.toString();
+      await fetch("http://localhost:3000/gondolas", {
+        method: "DELETE",
+        body: JSON.stringify({
+          id_gondola: id_gondola,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      });
+    }
+    history.go(0);
   } else {
     history.go(0);
   }
