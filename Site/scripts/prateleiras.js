@@ -1,7 +1,7 @@
-var dataEstoques;
 var dataProdutos;
 var dataPrateleiras;
 
+// GET inicial das Prateleiras para mostrar na tela
 async function getPrateleiras() {
   const response = await fetch("http://localhost:3000/prateleiras", {
     method: "GET",
@@ -20,6 +20,7 @@ async function getPrateleiras() {
   mostraPrateleiras();
 }
 
+// Colocando as prateleiras puxadas pelo GET na tela
 function mostraPrateleiras() {
   for (var i = 0; i < dataPrateleiras.quantidade; i++) {
     var tag = document.createElement("p");
@@ -97,10 +98,10 @@ function mostraPrateleiras() {
           dataProdutos.produtos[j].ID_PRODUTO ==
           dataPrateleiras.prateleiras[i].fk_Produtos_ID_PRODUTO
         ) {
-          product_preco = dataProdutos.produtos[j].preco;
+          product_preco = dataProdutos.produtos[j].Preco;
         }
       }
-      var text = document.createTextNode("R$" + product_preco.toFixed(2));
+      var text = document.createTextNode("R$ " + product_preco.toFixed(2));
     }
     tag.appendChild(text);
     var modal_container = document.getElementById("prateleiraProductPreco");
@@ -110,45 +111,21 @@ function mostraPrateleiras() {
 
 getPrateleiras();
 
-async function mostraEstoques() {
-  const response3 = await fetch("http://localhost:3000/estoques", {
+// Colocando o estoque dos produtos na tela ao clicar no botão
+async function mostraProdutos() {
+  const response3 = await fetch("http://localhost:3000/produtos", {
     method: "GET",
   });
   const data3 = await response3.json();
   console.log(data3);
-  dataEstoques = data3;
+  dataProdutos = data3;
 
-  const response4 = await fetch("http://localhost:3000/produtos", {
-    method: "GET",
-  });
-  const data4 = await response4.json();
-  console.log(data4);
-  dataProdutos = data4;
-
-  for (var i = 0; i < dataEstoques.quantidade; i++) {
+  for (var i = 0; i < dataProdutos.quantidade; i++) {
     var tag = document.createElement("p");
     tag.classList.add("tag");
-    var text = document.createTextNode(dataEstoques.estoques[i].ID_ESTOQUE);
+    var text = document.createTextNode(dataProdutos.produtos[i].ID_PRODUTO);
     tag.appendChild(text);
-    var modal_container = document.getElementById("estoqueID");
-    modal_container.appendChild(tag);
-  }
-
-  for (var i = 0; i < dataEstoques.quantidade; i++) {
-    var tag = document.createElement("p");
-    tag.classList.add("tag");
-    var text = document.createTextNode(dataEstoques.estoques[i].QntTotal);
-    tag.appendChild(text);
-    var modal_container = document.getElementById("estoqueQntTotal");
-    modal_container.appendChild(tag);
-  }
-
-  for (var i = 0; i < dataEstoques.quantidade; i++) {
-    var tag = document.createElement("p");
-    tag.classList.add("tag");
-    var text = document.createTextNode(dataEstoques.estoques[i].QntMin);
-    tag.appendChild(text);
-    var modal_container = document.getElementById("estoqueQntMin");
+    var modal_container = document.getElementById("produtoID");
     modal_container.appendChild(tag);
   }
 
@@ -157,22 +134,40 @@ async function mostraEstoques() {
     tag.classList.add("tag");
     var text = document.createTextNode(dataProdutos.produtos[i].Nome);
     tag.appendChild(text);
-    var modal_container = document.getElementById("productNome");
+    var modal_container = document.getElementById("produtoNome");
     modal_container.appendChild(tag);
   }
 
-  for (var i = 0; i < dataEstoques.quantidade; i++) {
+  for (var i = 0; i < dataProdutos.quantidade; i++) {
     var tag = document.createElement("p");
     tag.classList.add("tag");
     var text = document.createTextNode(
-      dataEstoques.estoques[i].fk_Produtos_ID_PRODUTO
+      "R$ " + dataProdutos.produtos[i].Preco.toFixed(2)
     );
     tag.appendChild(text);
-    var modal_container = document.getElementById("productID");
+    var modal_container = document.getElementById("produtoPreco");
     modal_container.appendChild(tag);
   }
 
-  for (var i = 0; i < dataEstoques.quantidade; i++) {
+  for (var i = 0; i < dataProdutos.quantidade; i++) {
+    var tag = document.createElement("p");
+    tag.classList.add("tag");
+    var text = document.createTextNode(dataProdutos.produtos[i].QntTotal);
+    tag.appendChild(text);
+    var modal_container = document.getElementById("produtoQntTotal");
+    modal_container.appendChild(tag);
+  }
+
+  for (var i = 0; i < dataProdutos.quantidade; i++) {
+    var tag = document.createElement("p");
+    tag.classList.add("tag");
+    var text = document.createTextNode(dataProdutos.produtos[i].QntMin);
+    tag.appendChild(text);
+    var modal_container = document.getElementById("produtoQntMin");
+    modal_container.appendChild(tag);
+  }
+
+  for (var i = 0; i < dataProdutos.quantidade; i++) {
     var tag = document.createElement("h3");
     tag.classList.add("tag");
     tag.classList.add("modalAddButton");
@@ -184,12 +179,13 @@ async function mostraEstoques() {
   }
 }
 
+// Colocando na tela a form para escolher quantos produtos mandar para qual prateleira
 function escolhePrateleira(i) {
-  fechaPrateleiras();
+  fechaForm();
   var container = document.createElement("div");
-  container.classList.add("pratContainer");
+  container.classList.add("formContainer");
   var text0 = document.createTextNode(
-    `Passando do Estoque ${dataEstoques.estoques[i].ID_ESTOQUE}`
+    `Tirando do Estoque  de ${dataProdutos.produtos[i].Nome}`
   );
   container.appendChild(text0);
   var br = document.createElement("br");
@@ -214,9 +210,11 @@ function escolhePrateleira(i) {
   form.appendChild(label2);
   form.appendChild(input2);
   var submit = document.createElement("input");
-  submit.type = "submit";
+  submit.type = "a";
   submit.name = "Submit";
   submit.value = "Mover";
+  submit.setAttribute("href", "prateleiras.html");
+  submit.setAttribute("style", "text-align: center");
   submit.setAttribute("onclick", `adicionaPrateleira(${i})`);
   form.appendChild(submit);
   container.appendChild(form);
@@ -224,126 +222,111 @@ function escolhePrateleira(i) {
   modal_container.appendChild(container);
 }
 
+// PATCHs e Validações necessárias (Estoque -> Prateleira)
 async function adicionaPrateleira(i) {
   var indexPrat;
   var id_prat = document.getElementById("input1").value;
   var qtde = document.getElementById("input2").value;
 
+  if (id_prat > 20 || id_prat < 1) {
+    alert("Essa prateleira não existe!!");
+    history.go(-1);
+    return;
+  }
   for (var j = 0; j < dataPrateleiras.quantidade; j++) {
     if (dataPrateleiras.prateleiras[j].ID_PRATELEIRA == id_prat) {
       indexPrat = j;
+      break;
     }
   }
-
   if (
     dataPrateleiras.prateleiras[indexPrat].fk_Produtos_ID_PRODUTO !=
-      dataEstoques.estoques[i].fk_Produtos_ID_PRODUTO &&
+      dataProdutos.produtos[i].ID_PRODUTO &&
     dataPrateleiras.prateleiras[indexPrat].fk_Produtos_ID_PRODUTO != null
   ) {
     alert("Essa prateleira possui um tipo diferente de produto!!");
-    escolhePrateleira(i);
+    history.go(-1);
     return;
   }
-  if (id_prat > 12 || id_prat < 1) {
-    alert("Essa prateleira não existe!!");
-    escolhePrateleira(i);
-    return;
-  }
-  if (qtde > dataEstoques.estoques[i].QntTotal) {
+  if (qtde > dataProdutos.produtos[i].QntTotal) {
     alert("Esse número de produtos excede a quantidade no estoque!!");
-    escolhePrateleira(i);
+    history.go(-1);
     return;
   }
   if (qtde == 0) {
     alert("Para completar a ação, é necessário mover pelo menos 1 produto!!");
-    escolhePrateleira(i);
+    history.go(-1);
     return;
   }
   if (qtde < 0) {
     alert("Número de produtos impossível!!");
-    escolhePrateleira(i);
+    history.go(-1);
     return;
   }
 
   var aux1 = parseInt(dataPrateleiras.prateleiras[indexPrat].QntTotal);
   var aux2 = parseInt(qtde);
   var qtdePrat = aux1 + aux2;
+  console.log(qtdePrat);
 
-  var aux3 = parseInt(dataEstoques.estoques[i].QntTotal);
+  if (qtdePrat > dataPrateleiras.prateleiras[indexPrat].QntMax) {
+    alert("Esse número de produtos excede a quantidade máxima da prateleira!!");
+    history.go(-1);
+    return;
+  }
+
+  var aux3 = parseInt(dataProdutos.produtos[i].QntTotal);
   var qtdeNova = aux3 - aux2;
+  console.log(qtdeNova);
 
-  if (qtdeNova < dataEstoques.estoques[i].QntMin) {
+  if (qtdeNova < dataProdutos.produtos[i].QntMin) {
     alert(
       "ATENÇÃO: Quantidade no estoque abaixo da esperada, favor reestocá-lo!!"
     );
+    //CONEXÃO COM MONGO NECESSÁRIA
   }
 
-  console.log(dataEstoques.estoques[i]);
-  var id_produto = dataEstoques.estoques[i].fk_Produtos_ID_PRODUTO;
+  var id_produto = dataProdutos.produtos[i].ID_PRODUTO.toString();
 
-  await fetch("http://localhost:3000/prateleiras", {
+  fetch("http://localhost:3000/prateleiras", {
     method: "PATCH",
     body: JSON.stringify({
       qntTotal: qtdePrat,
-      codbarras: id_produto,
+      id_produto: id_produto,
       id_prateleira: id_prat,
     }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
-  })
-    .then((response) => response.json())
-    .then((json) => console.log(json));
+  });
 
-  console.log(qtdeNova);
-  await fetch("http://localhost:3000/estoques", {
+  fetch("http://localhost:3000/produtos", {
     method: "PATCH",
     body: JSON.stringify({
       qntTotal: qtdeNova,
-      codbarras: id_produto,
+      id_produto: id_produto,
     }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
-  })
-    .then((response) => response.json())
-    .then((json) => console.log(json));
+  });
 
-  fechaEstoques();
-  window.location = "#closeModal";
+  window.location.href = "./prateleiras.html";
 }
 
-function fechaEstoques() {
+// Removendo da tela a tabela do estoque
+function fechaEstoque() {
   var elems = document.querySelectorAll(".tag");
   for (var i = 0; i < elems.length; i++) {
     elems[i].remove();
   }
-  fechaPrateleiras();
+  fechaForm();
 }
 
-function fechaPrateleiras() {
-  var elems = document.querySelectorAll(".pratContainer");
+// Removendo da tela a form para mover à prateleira
+function fechaForm() {
+  var elems = document.querySelectorAll(".formContainer");
   for (var i = 0; i < elems.length; i++) {
     elems[i].remove();
   }
 }
-
-atualizaEstoque = () => {
-  fetch("http://localhost:3000/estoques", {
-    method: "PATCH",
-    header: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      qntTotal: "",
-      codbarras: "",
-    }),
-  })
-    .then((res) => {
-      if (!res.ok) {
-        console.log("Fetch sem sucesso.");
-      }
-      res.json();
-    })
-    .then((data) => console.log(data));
-};

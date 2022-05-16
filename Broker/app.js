@@ -3,7 +3,7 @@ const app = express();
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const db = require("./db").pool;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion } = require("mongodb");
 const amqplib = require("amqplib");
 
 const cors = require("cors");
@@ -43,10 +43,6 @@ app.use((error, req, res, next) => {
     },
   });
 });
-
-
-
-
 
 // Requisição GET para /produtos
 const getProdutos = async () => {
@@ -381,14 +377,9 @@ const postGondolas = async () => {
       sentData = "Request of POST in /gondolas: Successful";
       db.getConnection((err, conn) => {
         conn.query(
-          `INSERT INTO gondolas (ID_GONDOLA, fk_Produtos_Lote, QntTotal, PrecoTotal)
-          VALUES (?,?,?,?)`,
-          [
-            recData.id_gondola,
-            recData.lote,
-            recData.qntTotal,
-            recData.precoTotal,
-          ],
+          `INSERT INTO gondolas (fk_Produtos_ID_PRODUTO, QntTotal, PrecoTotal)
+          VALUES (?,?,?)`,
+          [recData.id_produto, recData.qntTotal, recData.precoTotal],
           (err, result, field) => {
             conn.release();
             console.log("[X] Replying in queue " + queueName);
@@ -519,16 +510,10 @@ const patchGondolas = async () => {
       db.getConnection((err, conn) => {
         conn.query(
           `UPDATE gondolas
-            SET fk_Produtos_Lote = ?,
-                QntTotal         = ?,
-                PrecoTotal       = ?
-          WHERE ID_GONDOLA = ?`,
-          [
-            recData.lote,
-            recData.qntTotal,
-            recData.precoTotal,
-            recData.id_gondola,
-          ],
+            SET QntTotal               = ?,
+                PrecoTotal             = ?
+          WHERE ID_GONDOLA             = ?`,
+          [recData.qntTotal, recData.precoTotal, recData.id_gondola],
           (err, result, field) => {
             conn.release();
             console.log("[X] Replying in queue " + queueName);
@@ -552,42 +537,40 @@ const patchGondolas = async () => {
 };
 
 //Requisição GET do MongoDB
-const getMongo = async()=>{
+const getMongo = async () => {
   const queueName = "getMongo";
   const connection = await amqplib.connect("amqp://localhost");
   const channel = await connection.createChannel();
   await channel.assertQueue(queueName, { durable: true });
-  const uri = "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
+  const uri =
+    "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
   const client = new MongoClient(uri);
   await client.connect();
   channel.prefetch(1);
   channel.consume(
     queueName,
-    async(data) => {
-      
+    async (data) => {
       databasesList = await client.db("Redes2").collection("Redes2");
       documento = await databasesList.find({}).toArray();
-      console.log("[.] Request Received: " + data.content + " in /Mongodb");        
-      console.log('Documentos Encontrados =>', documento);
-         
-          console.log("[X] Replying in queue " + queueName);
-          console.log("[X] Data: ");
-          console.info(documento);
-          channel.sendToQueue(
-            data.properties.replyTo,
-            Buffer.from(JSON.stringify(documento)),
-            {
-              correlationId: data.properties.correlationId,
-            }
-          );
-        
+      console.log("[.] Request Received: " + data.content + " in /Mongodb");
+      console.log("Documentos Encontrados =>", documento);
+
+      console.log("[X] Replying in queue " + queueName);
+      console.log("[X] Data: ");
+      console.info(documento);
+      channel.sendToQueue(
+        data.properties.replyTo,
+        Buffer.from(JSON.stringify(documento)),
+        {
+          correlationId: data.properties.correlationId,
+        }
+      );
 
       channel.ack(data);
     },
     { noAck: false }
   );
-
-}
+};
 
 // Requisição PATCH para /Mongodb/rotatividade
 const patchMongoReposicoesPlusOne = async () => {
@@ -595,7 +578,8 @@ const patchMongoReposicoesPlusOne = async () => {
   const connection = await amqplib.connect("amqp://localhost");
   const channel = await connection.createChannel();
   await channel.assertQueue(queueName, { durable: true });
-  const uri = "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
+  const uri =
+    "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
   const client = new MongoClient(uri);
   await client.connect();
   channel.prefetch(1);
@@ -609,38 +593,39 @@ const patchMongoReposicoesPlusOne = async () => {
       console.info(recData);
       sentData = "Request of PATCH in /Mongodb/reposicoesplusone: Successful";
       databasesList = await client.db("Redes2").collection("Redes2");
-      documento = await databasesList.findOne({"nome": recData.Nome});
+      documento = await databasesList.findOne({ nome: recData.Nome });
       console.log(documento);
       reposicoes = documento.reposições + 1;
-      const updateResult = await databasesList.updateOne({ "nome": recData.Nome }, { $set: { "reposições": reposicoes } });
-      console.log('Updated documents =>', updateResult);
-      
-        
-            console.log("[X] Replying in queue " + queueName);
-            console.log("[X] Data: ");
-            console.log(sentData);
-            channel.sendToQueue(
-              data.properties.replyTo,
-              Buffer.from(sentData.toString()),
-              {
-                correlationId: data.properties.correlationId,
-              }
-              );
-            
-    
-          channel.ack(data);
-        },
-        { noAck: false }
+      const updateResult = await databasesList.updateOne(
+        { nome: recData.Nome },
+        { $set: { reposições: reposicoes } }
       );
-    
-    }
+      console.log("Updated documents =>", updateResult);
+
+      console.log("[X] Replying in queue " + queueName);
+      console.log("[X] Data: ");
+      console.log(sentData);
+      channel.sendToQueue(
+        data.properties.replyTo,
+        Buffer.from(sentData.toString()),
+        {
+          correlationId: data.properties.correlationId,
+        }
+      );
+
+      channel.ack(data);
+    },
+    { noAck: false }
+  );
+};
 
 const getMongoNome = async () => {
   const queueName = "getMongoNome";
   const connection = await amqplib.connect("amqp://localhost");
   const channel = await connection.createChannel();
   await channel.assertQueue(queueName, { durable: true });
-  const uri = "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
+  const uri =
+    "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
   const client = new MongoClient(uri);
   await client.connect();
   channel.prefetch(1);
@@ -653,7 +638,7 @@ const getMongoNome = async () => {
       console.log("[.] Data Received: ");
       console.info(recData);
       databasesList = await client.db("Redes2").collection("Redes2");
-      result = await databasesList.findOne({"nome": recData});
+      result = await databasesList.findOne({ nome: recData });
       console.log("[X] Replying in queue " + queueName);
       console.log("[X] Data: ");
       console.info(result);
@@ -664,21 +649,20 @@ const getMongoNome = async () => {
           correlationId: data.properties.correlationId,
         }
       );
-            
-    
+
       channel.ack(data);
     },
     { noAck: false }
   );
-    
-}
+};
 
 const patchMongoreposicoes = async () => {
   const queueName = "patchMongoreposicoes";
   const connection = await amqplib.connect("amqp://localhost");
   const channel = await connection.createChannel();
   await channel.assertQueue(queueName, { durable: true });
-  const uri = "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
+  const uri =
+    "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
   const client = new MongoClient(uri);
   await client.connect();
   channel.prefetch(1);
@@ -692,70 +676,68 @@ const patchMongoreposicoes = async () => {
       console.info(recData);
       sentData = "Request of PATCH in /Mongodb/reposicoes: Successful";
       databasesList = await client.db("Redes2").collection("Redes2");
-      const updateResult = await databasesList.updateOne({ "nome": recData.Nome }, { $set: { "reposições": recData.reposições } });
-      console.log('Updated documents =>', updateResult);
-      
-        
-            console.log("[X] Replying in queue " + queueName);
-            console.log("[X] Data: ");
-            console.log(sentData);
-            channel.sendToQueue(
-              data.properties.replyTo,
-              Buffer.from(sentData.toString()),
-              {
-                correlationId: data.properties.correlationId,
-              }
-              );
-            
-    
-          channel.ack(data);
-        },
-        { noAck: false }
+      const updateResult = await databasesList.updateOne(
+        { nome: recData.Nome },
+        { $set: { reposições: recData.reposições } }
       );
-    
-    }
+      console.log("Updated documents =>", updateResult);
 
-    const postMongo = async () => {
-      const queueName = "postMongo";
-      const connection = await amqplib.connect("amqp://localhost");
-      const channel = await connection.createChannel();
-      await channel.assertQueue(queueName, { durable: true });
-      const uri = "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
-      const client = new MongoClient(uri);
-      await client.connect();
-      channel.prefetch(1);
-    
-      channel.consume(
-        queueName,
-        async (data) => {
-          console.log("[.] Request Received: POST in /Mongodb");
-          recData = JSON.parse(data.content);
-          console.log("[.] Received Data: ");
-          console.info(recData);
-          sentData = "Request of POST in /Mongodb: Successful";
-          databasesList = await client.db("Redes2").collection("Redes2");
-          const updateResult = await databasesList.insertOne(recData);
-          console.log('Updated documents =>', updateResult);
-          
-            
-                console.log("[X] Replying in queue " + queueName);
-                console.log("[X] Data: ");
-                console.log(sentData);
-                channel.sendToQueue(
-                  data.properties.replyTo,
-                  Buffer.from(sentData.toString()),
-                  {
-                    correlationId: data.properties.correlationId,
-                  }
-                  );
-                
-        
-              channel.ack(data);
-            },
-            { noAck: false }
-          );
-        
+      console.log("[X] Replying in queue " + queueName);
+      console.log("[X] Data: ");
+      console.log(sentData);
+      channel.sendToQueue(
+        data.properties.replyTo,
+        Buffer.from(sentData.toString()),
+        {
+          correlationId: data.properties.correlationId,
         }
+      );
+
+      channel.ack(data);
+    },
+    { noAck: false }
+  );
+};
+
+const postMongo = async () => {
+  const queueName = "postMongo";
+  const connection = await amqplib.connect("amqp://localhost");
+  const channel = await connection.createChannel();
+  await channel.assertQueue(queueName, { durable: true });
+  const uri =
+    "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
+  const client = new MongoClient(uri);
+  await client.connect();
+  channel.prefetch(1);
+
+  channel.consume(
+    queueName,
+    async (data) => {
+      console.log("[.] Request Received: POST in /Mongodb");
+      recData = JSON.parse(data.content);
+      console.log("[.] Received Data: ");
+      console.info(recData);
+      sentData = "Request of POST in /Mongodb: Successful";
+      databasesList = await client.db("Redes2").collection("Redes2");
+      const updateResult = await databasesList.insertOne(recData);
+      console.log("Updated documents =>", updateResult);
+
+      console.log("[X] Replying in queue " + queueName);
+      console.log("[X] Data: ");
+      console.log(sentData);
+      channel.sendToQueue(
+        data.properties.replyTo,
+        Buffer.from(sentData.toString()),
+        {
+          correlationId: data.properties.correlationId,
+        }
+      );
+
+      channel.ack(data);
+    },
+    { noAck: false }
+  );
+};
 
 getProdutos(); //OK
 getProdutosID(); //OK

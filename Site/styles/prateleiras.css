@@ -109,23 +109,23 @@
     cursor: pointer;
   }
 
-  .pratContainer {
+  .formContainer {
     background-color: #0452aa;
     color: white;
     margin-top: 32px;
     width: 200px;
-    height: 200px;
+    height: 220px;
     margin-left: 50px;
     padding: 20px 10px;
     margin-right: 20px;
     font-size: 14px;
   }
 
-  .pratContainer form {
+  .formContainer form {
     padding-top: 20px;
   }
 
-  .pratContainer input {
+  .formContainer input {
     margin-top: 8px;
     margin-bottom: 20px;
   }

@@ -4,15 +4,15 @@
         <meta charset='utf-8'>
         <meta http-equiv='X-UA-Compatible' content='IE=edge'>
         <meta name='viewport' content='width=device-width, initial-scale=1'>
-        <title>Gôndola</title>
+        <title>Caixa</title>
 
         <!--Estilos comuns-->
         <link rel='stylesheet' type='text/css' media='screen' href='styles/styles.css'>
         <!--Estilos únicos da página-->
-        <link rel='stylesheet' type='text/css' media='screen' href='styles/gondola.css'>
+        <link rel='stylesheet' type='text/css' media='screen' href='styles/caixa.css'>
 
         <!--Scripts da página-->
-        <script src='scripts/gondola.js'></script>
+        <script src='scripts/caixa.js'></script>
 
         <!--Bibliotecas de ícones-->
         <script src="https://kit.fontawesome.com/a43d9416c1.js" crossorigin="anonymous"></script>
@@ -22,9 +22,9 @@
 
         <!--Header com a paginação-->
         <div class="header">
-            <h1>Gôndola</h1>
+            <h1>Caixa</h1>
             <div class="pageContainer">
-                <a class="active" href="gondola.html"><i class="fa-solid fa-cart-shopping"></i>Gôndola</a>
+                <a class="active" href="caixa.html"><i class="fa-solid fa-cart-shopping"></i>Caixa</a>
                 <a href="prateleiras.html"><i class="fa-solid fa-bars-progress"></i></i>Prateleiras</a>
                 <a href="https://github.com/GabrielGMSantini/ProjetoRedes2/tree/frontend/Site" target="_blank"><i class="fa-brands fa-github"></i>Source</a>
             </div>
@@ -33,43 +33,28 @@
         <!--Container principal com os produtos-->
         <div class="mainContainer">
 
-            <!--Header do Container principal-->
-            <div class="mainContainerHeader">
-                <div class="pContainerHeader">
-                    <p class="pCod">Código/Barras</p>
-                    <p class="pQtde">Qtde</h1>
-                    <p class="pPreco">Preço</p>
-                    <p class="pNome">Nome</p>
+           <!--Container onde as prateleiras são mostrados-->
+           <div class="mainProductContainer">
+                <div id="caixaProductID">
+                    <h2 class="mainElement">ID do Produto</h2>
+                </div>  
+                <div id="caixaProductNome">
+                    <h2 class="mainElement">Nome do Produto</h2>
+                </div>    
+                <div id="caixaQntTotal">
+                    <h2 class="mainElement">Quantidade</h2>
                 </div>
-            </div>
-
-            <!--Container onde os produtos são mostrados-->
-            <div class="mainProductContainer">
-                <div>
-                    <p>#19238397</p>
-                    <p>#44112948</p>
-                    <p>#91002841</p>
+                <div id="caixaProductPreco">
+                    <h2 class="mainElement">Preço do Produto</h2>
                 </div>
-                <div>
-                    <p>12</p>
-                    <p>2</p>
-                    <p>4</p>
-                </div>
-                <div class="productPreco">
-                    <p>23,00</p>
-                    <p>181,35</p>
-                    <p>1,78</p>
-                </div>
-                <div>
-                    <p>Produto 1</p>
-                    <p>Produto 2</p>
-                    <p>Produto 3</p>
+                <div id="caixaPrecoTotal">
+                    <h2 class="mainElement">Preço Total</h2>
                 </div>
             </div>
         </div>
 
         <!--Container com botão para abrir o Modal-->
-        <div class="searchContainer" id="triggerBtn">
+        <div class="searchContainer" onClick="mostraPrateleiras()">
             <a href="#openModal">Adicionar ao Carrinho</a>
         </div>
 
@@ -84,11 +69,11 @@
 
         <!--Container com o valor total da soma dos produtos no carrinho-->
         <div class="vendaPrecoContainer">
-            <h1>0,00</h1>
+            <h1 id="vendaPrecoTotal">0,00</h1>
         </div>
 
         <!--Container com o botão para finalizar a venda dos produtos-->
-        <div class="vendaBottomContainer">
+        <div class="vendaBottomContainer" onClick="finalizaVenda()">
             <h1>Finalizar Venda</h1>
         </div>
 
@@ -98,25 +83,25 @@
 
                 <!--Container com o Nome da lista acessada-->
                 <div class="modalNameContainer">
-                    <p>Estoques</p>
+                    <p>Prateleiras</p>
                 </div>
 
                 <!--Botão para fechar o Modal-->
-                <a href="#closeModal" class="closeModal" onClick="fechaEstoques()">X</a>
+                <a href="#closeModal" class="closeModal" onClick="fechaPrateleiras()">X</a>
 
                 <!--Container principal com os produtos-->
                 <div class="modalMainContainer">
 
                     <!--Container onde os produtos são mostrados-->
-                    <div class="modalProductContainer">
-                        <div id="estoqueID">
-                            <h2 class="modalElement">ID do Estoque</h2>
+                    <div class="modalPratContainer">
+                        <div id="prateleiraID">
+                            <h2 class="modalElement">ID da Prateleira</h2>
                         </div>
-                        <div id="estoqueQntTotal">
-                            <h2 class="modalElement">Quantidade Total</h2>
+                        <div id="prateleiraQntTotal">
+                            <h2 class="modalElement">Quantidade Ocupada</h2>
                         </div>    
-                        <div id="estoqueQntMin">
-                            <h2 class="modalElement">Quantidade Mínima</h2>
+                        <div id="prateleiraQntMax">
+                            <h2 class="modalElement">Quantidade Máxima</h2>
                         </div>
                         <div id="productNome">
                             <h2 class="modalElement">Nome do Produto</h2>
@@ -124,10 +109,13 @@
                         <div id="productID">
                             <h2 class="modalElement">ID do Produto</h2>
                         </div>
-                        <div id="addButton">
-                            <h2 class="modalButton">Adicionar para Prateleira</h2>
+                        <div id="productPreco">
+                            <h2 class="modalElement">Preço do Produto</h2>
                         </div>
-                        <div id="pratAddContainer">
+                        <div id="addButton">
+                            <h2 class="modalButton">Adicionar ao Carrinho</h2>
+                        </div>
+                        <div id="gondAddContainer">
             
                         </div>
                     </div>
