@@ -739,6 +739,146 @@ const postMongo = async () => {
   );
 };
 
+const patchMongoAbastecimentosPlusOne = async()=>{
+  const queueName = "patchMongoAbastecimentosPlusOne";
+  const connection = await amqplib.connect("amqp://localhost");
+  const channel = await connection.createChannel();
+  await channel.assertQueue(queueName, { durable: true });
+  const uri =
+    "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
+  const client = new MongoClient(uri);
+  await client.connect();
+  channel.prefetch(1);
+
+  channel.consume(
+    queueName,
+    async (data) => {
+      console.log("[.] Request Received: PATCH in /Mongodb/abastecimentosplusone");
+      recData = JSON.parse(data.content);
+      console.log("[.] Received Data: ");
+      console.info(recData);
+      sentData = "Request of PATCH in /Mongodb/abastecimentosplusone: Successful";
+      databasesList = await client.db("Redes2").collection("Redes2");
+      documento = await databasesList.findOne({ nome: recData.Nome });
+      console.log(documento);
+      abastecimentos = documento.abastecimentos + 1;
+      const updateResult = await databasesList.updateOne(
+        { nome: recData.Nome },
+        { $set: { abastecimentos: abastecimentos } }
+      );
+      console.log("Updated documents =>", updateResult);
+
+      console.log("[X] Replying in queue " + queueName);
+      console.log("[X] Data: ");
+      console.log(sentData);
+      channel.sendToQueue(
+        data.properties.replyTo,
+        Buffer.from(sentData.toString()),
+        {
+          correlationId: data.properties.correlationId,
+        }
+      );
+
+      channel.ack(data);
+    },
+    { noAck: false }
+  );
+}
+
+const patchQuantidadePrateleiras = async()=>{
+  const queueName = "patchQuantidadePrateleiras";
+  const connection = await amqplib.connect("amqp://localhost");
+  const channel = await connection.createChannel();
+  await channel.assertQueue(queueName, { durable: true });
+  const uri =
+    "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
+  const client = new MongoClient(uri);
+  await client.connect();
+  channel.prefetch(1);
+
+  channel.consume(
+    queueName,
+    async (data) => {
+      console.log("[.] Request Received: PATCH in /Mongodb/quantidadeprateleiras");
+      recData = JSON.parse(data.content);
+      console.log("[.] Received Data: ");
+      console.info(recData);
+      sentData = "Request of PATCH in /Mongodb/quantidadeprateleiras: Successful";
+      databasesList = await client.db("Redes2").collection("Redes2");
+      const updateResult = await databasesList.updateOne(
+        { nome: recData.Nome },
+        { $set: { qtddmaximaprateleira: recData.qtddmaximaprateleira,
+                  qtddminimaprateleira: recData.qtddminimaprateleira } }
+      );
+      console.log("Updated documents =>", updateResult);
+
+      console.log("[X] Replying in queue " + queueName);
+      console.log("[X] Data: ");
+      console.log(sentData);
+      channel.sendToQueue(
+        data.properties.replyTo,
+        Buffer.from(sentData.toString()),
+        {
+          correlationId: data.properties.correlationId,
+        }
+      );
+
+      channel.ack(data);
+    },
+    { noAck: false }
+  );
+}
+const patchSomaVendas = async()=>{
+  const queueName = "patchSomaVendas";
+  const connection = await amqplib.connect("amqp://localhost");
+  const channel = await connection.createChannel();
+  await channel.assertQueue(queueName, { durable: true });
+  const uri =
+    "mongodb+srv://root:1234@cluster0.tn6hl.mongodb.net/Redes2?retryWrites=true&w=majority";
+  const client = new MongoClient(uri);
+  await client.connect();
+  channel.prefetch(1);
+
+  channel.consume(
+    queueName,
+    async (data) => {
+      console.log("[.] Request Received: PATCH in /Mongodb/somavendas");
+      recData = JSON.parse(data.content);
+      console.log("[.] Received Data: ");
+      console.info(recData);
+      sentData = "Request of PATCH in /Mongodb/somavendas: Successful";
+      databasesList = await client.db("Redes2").collection("Redes2");
+      console.log("length:");
+      console.log(recData.length);
+      for(i=0;i<recData.length;i++){
+        console.log(i);
+        documento = await databasesList.findOne({nome: recData[i].Nome});
+        console.log(documento);
+        const updateResult = await databasesList.updateOne(
+          { nome: recData[i].Nome },
+          { $set: { vendas: recData[i].vendas + documento.vendas }}
+        );
+        console.log("Updated documents =>", updateResult);
+      }
+      
+
+      console.log("[X] Replying in queue " + queueName);
+      console.log("[X] Data: ");
+      console.log(sentData);
+      channel.sendToQueue(
+        data.properties.replyTo,
+        Buffer.from(sentData.toString()),
+        {
+          correlationId: data.properties.correlationId,
+        }
+      );
+
+      channel.ack(data);
+    },
+    { noAck: false }
+  );
+}
+
 getProdutos(); //OK
 getProdutosID(); //OK
 getLotes(); //OK
@@ -755,5 +895,8 @@ getMongo(); //OK
 getMongoNome(); //OK
 patchMongoReposicoesPlusOne(); //OK
 patchMongoreposicoes(); //OK
-postMongo();
+postMongo(); //OK
+patchMongoAbastecimentosPlusOne(); //OK
+patchQuantidadePrateleiras(); //OK
+patchSomaVendas(); //OK
 module.exports = app;
