@@ -145,6 +145,13 @@ Future<http.Response> PostProduto(Produto produto) {
       }));
 }
 
+Future<http.Response> PatchProdutoNR(String nome) {
+  // não relacional
+  return http.patch(Uri.parse("http://10.0.2.2:3000/Mongodb/reposicoesplusone"),
+      headers: {"Content-type": "application/json"},
+      body: jsonEncode(<String, dynamic>{'Nome': nome}));
+}
+
 Future<http.Response> PatchProduto(int id, int qtd) {
   return http.patch(Uri.parse("http://10.0.2.2:3000/produtos"),
       headers: {"Content-type": "application/json"},
@@ -457,6 +464,7 @@ class _addProdutoState extends State<addProduto> {
           qtdMin: data.QntMin));
     } else {
       print("produto patch");
+      PatchProdutoNR(data.Nome_Produto);
       return PatchProduto(
           data.ID_PRODUTO, value.qtdTotal + int.parse(toAdd.toString()));
     }
