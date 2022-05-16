@@ -1,0 +1,51 @@
+/* Logico_Redes: */
+
+create database redes;
+
+use redes;
+
+CREATE TABLE Produtos (
+    ID_PRODUTO bigint PRIMARY KEY NOT NULL,
+    Nome varchar(40),
+    Preco float,
+    QntTotal int,
+    QntMin int
+);
+
+CREATE TABLE Lotes(
+    ID_LOTE bigint PRIMARY KEY NOT NULL,
+    Data_Fabricacao date,
+    Data_Validade date,
+    Origem varchar(40),
+    fk_Produtos_ID_PRODUTO bigint
+);
+
+CREATE TABLE Prateleiras (
+    ID_PRATELEIRA int PRIMARY KEY auto_increment,
+    fk_Produtos_ID_PRODUTO bigint,
+    QntTotal int,
+    QntMin int,
+    QntMax int
+);
+
+CREATE TABLE Gondolas (
+    ID_GONDOLA int PRIMARY KEY auto_increment,
+    fk_Produtos_ID_PRODUTO bigint,
+    QntTotal int,
+    PrecoTotal float
+);
+
+ALTER TABLE Lotes ADD CONSTRAINT FK_Lotes
+    FOREIGN KEY (fk_Produtos_ID_PRODUTO)
+    REFERENCES Produtos (ID_PRODUTO)
+    ON DELETE RESTRICT;
+ 
+ ALTER TABLE Prateleiras ADD CONSTRAINT FK_Prateleiras
+    FOREIGN KEY (fk_Produtos_ID_PRODUTO)
+    REFERENCES Produtos (ID_PRODUTO)
+    ON DELETE RESTRICT;
+
+ALTER TABLE Gondolas ADD CONSTRAINT FK_Gondolas
+    FOREIGN KEY (fk_Produtos_ID_PRODUTO)
+    REFERENCES Produtos (ID_PRODUTO)
+    ON DELETE RESTRICT;
