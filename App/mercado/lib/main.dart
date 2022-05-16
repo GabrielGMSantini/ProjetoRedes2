@@ -109,12 +109,13 @@ Future<Lote?> GetLote(int id) async {
 
 Future<http.Response> PostLote(Lote lote) {
   return http.post(Uri.parse("http://10.0.2.2:3000/lotes"),
+      headers: {"Content-type": "application/json"},
       body: jsonEncode(<String, dynamic>{
-        'fk_Produtos_ID_PRODUTO': lote.id_produto,
-        'ID_LOTE': lote.ID,
-        'Data_Fabricacao': lote.fabricacao.toString(),
-        'Data_Validade': lote.validade.toString(),
-        'Origem': lote.origem,
+        'id_produto': lote.id_produto,
+        'id_lote': lote.ID,
+        'data_fabricacao': lote.fabricacao.toString(),
+        'data_validade': lote.validade.toString(),
+        'origem': lote.origem,
       }));
 }
 
@@ -134,20 +135,22 @@ Future<Produto?> GetProduto(int id) async {
 
 Future<http.Response> PostProduto(Produto produto) {
   return http.post(Uri.parse("http://10.0.2.2:3000/produtos"),
+      headers: {"Content-type": "application/json"},
       body: jsonEncode(<String, dynamic>{
-        'ID_PRODUTO': produto.ID,
-        'Nome': produto.nome,
-        'Preco': produto.preco,
-        'QntTotal': produto.qtdTotal,
-        'QntMin': produto.qtdMin,
+        'id_produto': produto.ID,
+        'nome': produto.nome,
+        'preco': produto.preco,
+        'qntTotal': produto.qtdTotal,
+        'qntMin': produto.qtdMin,
       }));
 }
 
 Future<http.Response> PatchProduto(int id, int qtd) {
   return http.patch(Uri.parse("http://10.0.2.2:3000/produtos"),
+      headers: {"Content-type": "application/json"},
       body: jsonEncode(<String, dynamic>{
-        'ID_PRODUTO': id,
-        'QntTotal': qtd,
+        'id_produto': id,
+        'qntTotal': qtd,
       }));
 }
 
@@ -443,7 +446,7 @@ class _addProdutoState extends State<addProduto> {
     );
   }
 
-  handleProduct(value) async {
+  handleProduct(Produto? value) async {
     if (value == null) {
       print("produto post");
       return PostProduto(Produto(
