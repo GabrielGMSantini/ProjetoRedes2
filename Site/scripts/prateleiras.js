@@ -41,6 +41,15 @@ function mostraPrateleiras() {
     var modal_container = document.getElementById("prateleiraQntTotal");
     modal_container.appendChild(tag);
   }
+  
+  for (var i = 0; i < dataPrateleiras.quantidade; i++) {
+    var tag = document.createElement("p");
+    tag.classList.add("pratElem");
+    var text = document.createTextNode(dataPrateleiras.prateleiras[i].QntMin);
+    tag.appendChild(text);
+    var modal_container = document.getElementById("prateleiraQntMin");
+    modal_container.appendChild(tag);
+  }
 
   for (var i = 0; i < dataPrateleiras.quantidade; i++) {
     var tag = document.createElement("p");
