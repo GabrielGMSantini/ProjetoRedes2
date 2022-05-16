@@ -128,7 +128,7 @@ router.post("/", async (req, res, next) => {
   );
 });
 
-// Rota para Atualizar informações de reposições em um documento
+// Rota para Atualizar informações de reposições em um documento somando 1
 router.patch("/reposicoesplusone", async (req, res, next) => {
   var recData;
   var sentData = req.body;
@@ -169,6 +169,7 @@ router.patch("/reposicoesplusone", async (req, res, next) => {
   );
 });
 
+// Rota para Atualizar informações de reposições em um documento
 router.patch("/reposicoes", async (req, res, next) => {
     var recData;
     var sentData = req.body;
@@ -208,5 +209,127 @@ router.patch("/reposicoes", async (req, res, next) => {
       { noAck: true }
     );
   });
+
+  // Rota para Atualizar informações de abastecimentos em um documento somando 1
+router.patch("/abastecimentosplusone", async (req, res, next) => {
+  var recData;
+  var sentData = req.body;
+
+  const connection = await amqplib.connect("amqp://localhost");
+
+  const channel = await connection.createChannel();
+  const q = await channel.assertQueue("", { exclusive: true });
+
+  console.log("[X] Requesting PATCH in /Mongodb/abastecimentosplusone" + "\n");
+  console.log("[X] Sending in queue patchMongoAbastecimentosPlusOne");
+  console.log("[X] Data: ");
+  console.info(sentData);
+
+  channel.sendToQueue("patchMongoAbastecimentosPlusOne", Buffer.from(JSON.stringify(sentData)), {
+    replyTo: q.queue,
+    correlationId: uuid,
+  });
+
+  channel.consume(
+    q.queue,
+    (data) => {
+      recData = data.content.toString();
+      console.log("[.] Data Received in /Mongodb/abastecimentosplusone:");
+      console.log(recData);
+      if (data.properties.correlationId == uuid) {
+      }
+      return res.send({
+        request: {
+          tipo: "PATCH",
+          descricao: "Atualiza os abastecimentos de um produto, somando 1",
+          url: "http://localhost:3000/MongoDB",
+        },
+        response: recData,
+      });
+    },
+    { noAck: true }
+  );
+});
+
+router.patch("/quantidadeprateleiras", async (req, res, next) => {
+  var recData;
+  var sentData = req.body;
+
+  const connection = await amqplib.connect("amqp://localhost");
+
+  const channel = await connection.createChannel();
+  const q = await channel.assertQueue("", { exclusive: true });
+
+  console.log("[X] Requesting PATCH in /Mongodb/quantidadeprateleiras" + "\n");
+  console.log("[X] Sending in queue patchQuantidadePrateleiras");
+  console.log("[X] Data: ");
+  console.info(sentData);
+
+  channel.sendToQueue("patchQuantidadePrateleiras", Buffer.from(JSON.stringify(sentData)), {
+    replyTo: q.queue,
+    correlationId: uuid,
+  });
+
+  channel.consume(
+    q.queue,
+    (data) => {
+      recData = data.content.toString();
+      console.log("[.] Data Received in /Mongodb/quantidadeprateleiras:");
+      console.log(recData);
+      if (data.properties.correlationId == uuid) {
+      }
+      return res.send({
+        request: {
+          tipo: "PATCH",
+          descricao: "Atualiza a quantidade máxima e minima de produtos aceitos nas prateleiras",
+          url: "http://localhost:3000/MongoDB",
+        },
+        response: recData,
+      });
+    },
+    { noAck: true }
+  );
+});
+
+router.patch("/somavendas", async (req, res, next) => {
+  var recData;
+  var sentData = req.body;
+
+  const connection = await amqplib.connect("amqp://localhost");
+
+  const channel = await connection.createChannel();
+  const q = await channel.assertQueue("", { exclusive: true });
+
+  console.log("[X] Requesting PATCH in /Mongodb/somavendas" + "\n");
+  console.log("[X] Sending in queue patchSomaVendas");
+  console.log("[X] Data: ");
+  console.info(sentData);
+
+  channel.sendToQueue("patchSomaVendas", Buffer.from(JSON.stringify(sentData)), {
+    replyTo: q.queue,
+    correlationId: uuid,
+  });
+
+  channel.consume(
+    q.queue,
+    (data) => {
+      recData = data.content.toString();
+      console.log("[.] Data Received in /Mongodb/somavendas:");
+      console.log(recData);
+      if (data.properties.correlationId == uuid) {
+      }
+      return res.send({
+        request: {
+          tipo: "PATCH",
+          descricao: "Atualiza as vendas, somando o valor vendido",
+          url: "http://localhost:3000/MongoDB",
+        },
+        response: recData,
+      });
+    },
+    { noAck: true }
+  );
+});
+
 
 module.exports = router;
